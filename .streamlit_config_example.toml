@@ -1,0 +1,3 @@
+# Copy values to Streamlit Cloud Secrets, NOT GitHub source control.
+DHAN_CLIENT_ID = "REPLACE_ME"
+DHAN_ACCESS_TOKEN = "REPLACE_ME"
