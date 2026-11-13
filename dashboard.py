@@ -296,7 +296,11 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
         cid, token = dhan_feed.get_dhan_credentials()
         if cid and token and stf == "5m":
             # Dynamic master must be populated before filtering supported symbols.
-            supported = dhan_feed.load_fo_universe()
+            try:
+                supported = dhan_feed.load_fo_universe()
+            except Exception as universe_error:
+                st.error(f'Dhan F&O instrument master unavailable: {universe_error}')
+                return pd.DataFrame(), pd.DataFrame(), {'nifty_bias': 'UNKNOWN', 'error': str(universe_error)}
             # Full-universe mode uses the current verified Dhan list, not the
             # older static 203-name UI list (which may contain delisted F&O).
             if universe_type != "Top 50 Most Liquid F&O (Ultra-Fast ⚡)":

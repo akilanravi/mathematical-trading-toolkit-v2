@@ -9,8 +9,8 @@ LOG = logging.getLogger(__name__)
 BASE = 'https://api.dhan.co/v2'
 IST = 'Asia/Kolkata'
 MASTER_URLS = [
- 'https://images.dhan.co/api-data/api-scrip-master.csv',
  'https://images.dhan.co/api-data/api-scrip-master-detailed.csv',
+ 'https://images.dhan.co/api-data/api-scrip-master.csv',
 ]
 NSE_LOTS_URL = 'https://nsearchives.nseindia.com/content/fo/fo_mktlots.csv'
 _LOCK = threading.Lock()
@@ -127,69 +127,60 @@ def _nse_fo_symbols():
 
 
 def load_fo_universe(force=False):
-    """Discover active stock futures and match them to Dhan NSE cash equity IDs.
+    """Discover F&O membership from NSE market lots and match Dhan cash IDs.
 
-    Returns {symbol: ('NSE_EQ', security_id, 'EQUITY')}. F&O membership is
-    discovered from the Dhan derivatives master, optionally intersected with
-    NSE's current market-lot file. Indices and expired-only futures excluded.
+    Supports Dhan compact/detailed master variants. Fail with diagnostic samples,
+    not an unexplained zero count. Never fabricate a security ID.
     """
     global _UNIVERSE_CACHE
     if _UNIVERSE_CACHE is not None and not force:
         return dict(_UNIVERSE_CACHE)
-    df = _master()
-    seg = _col(df, 'SEM_SEGMENT', 'SEGMENT')
-    exchange = _col(df, 'SEM_EXM_EXCH_ID', 'EXCH_ID', 'EXCHANGE')
-    instrument = _col(df, 'SEM_INSTRUMENT_NAME', 'INSTRUMENT', 'INSTRUMENT_TYPE')
-    sec_id = _col(df, 'SEM_SMST_SECURITY_ID', 'SECURITY_ID', 'SECURITYID')
-    trading = _col(df, 'SEM_TRADING_SYMBOL', 'TRADING_SYMBOL', 'SYMBOL')
-    custom = _col(df, 'SEM_CUSTOM_SYMBOL', 'CUSTOM_SYMBOL', 'DISPLAY_NAME')
-    expiry = _col(df, 'SEM_EXPIRY_DATE', 'EXPIRY_DATE')
-    if not all([instrument, sec_id, trading, exchange]):
-        raise RuntimeError('Dhan master schema unsupported: ' + ', '.join(df.columns))
-    inst = df[instrument].fillna('').str.upper().str.strip()
-    ex = df[exchange].fillna('').str.upper().str.strip()
-    fut = df[inst.isin(['FUTSTK', 'FUT_STK', 'STOCK FUTURES', 'FUTURE']) & ex.eq('NSE')].copy()
-    if seg is not None:
-        fut = fut[fut[seg].fillna('').str.upper().str.contains('D|FNO', regex=True)]
-    if expiry is not None:
-        expiries = pd.to_datetime(fut[expiry], errors='coerce', dayfirst=False)
-        fut = fut.loc[expiries.isna() | (expiries.dt.date >= pd.Timestamp.now(tz=IST).date())]
-    if fut.empty:
-        raise RuntimeError('No current NSE stock futures found in Dhan master; check instrument schema')
-    # Prefer explicit underlying trading symbol; never parse a contract description into a guessed ID.
-    futures_symbols = set(fut[trading].dropna().astype(str).str.upper().str.strip())
-    # Some master versions use contract-formatted trading symbols. Cross-check
-    # against NSE's published F&O symbols when available.
-    nse_symbols = _nse_fo_symbols()
-    if nse_symbols:
-        futures_symbols = {s for s in futures_symbols if s in nse_symbols}
-        # In other master versions FUTSTK trading symbol is a contract name;
-        # derive membership from an exact NSE-listed prefix, not arbitrary splitting.
-        for s in nse_symbols:
-            if (fut[trading].fillna('').str.upper().str.startswith(s + '-').any() or
-                (custom is not None and fut[custom].fillna('').str.upper().str.startswith(s + ' ').any())):
-                futures_symbols.add(s)
-    eq = df[inst.isin(['EQUITY', 'EQ']) & ex.eq('NSE')].copy()
-    if seg is not None:
-        eq = eq[eq[seg].fillna('').str.upper().str.contains('E', regex=False)]
+    master = _master()
+    sec_id = _col(master, 'SEM_SMST_SECURITY_ID', 'SECURITY_ID', 'SECURITYID', 'SECURITY_ID')
+    trading = _col(master, 'SEM_TRADING_SYMBOL', 'TRADING_SYMBOL', 'SYMBOL', 'SM_SYMBOL_NAME')
+    segment = _col(master, 'SEM_SEGMENT', 'SEGMENT', 'EXCHANGE_SEGMENT')
+    exchange = _col(master, 'SEM_EXM_EXCH_ID', 'EXCH_ID', 'EXCHANGE')
+    instrument = _col(master, 'SEM_INSTRUMENT_NAME', 'INSTRUMENT', 'INSTRUMENT_TYPE')
+    if not sec_id or not trading:
+        raise RuntimeError(f'Dhan master missing security/trading columns: {list(master.columns)[:30]}')
+    symbols = _nse_fo_symbols()
+    if not symbols:
+        raise RuntimeError('NSE F&O market-lot list unavailable; cannot verify current F&O membership. No fabricated universe.')
+    sym_series = master[trading].fillna('').astype(str).str.strip().str.upper()
+    mask = sym_series.isin(symbols)
+    if segment:
+        seg = master[segment].fillna('').astype(str).str.upper().str.strip()
+        # Dhan NSE cash equities are segment E; reject derivatives, currency and BSE.
+        mask &= seg.isin(['E','NSE_EQ','EQ','EQUITY']) | seg.str.contains('NSE_EQ',regex=False)
+    if exchange:
+        exch = master[exchange].fillna('').astype(str).str.upper().str.strip()
+        mask &= exch.isin(['NSE','NSE_EQ'])
+    if instrument:
+        inst = master[instrument].fillna('').astype(str).str.upper().str.strip()
+        mask &= inst.isin(['EQUITY','EQ','E'])
+    eq = master.loc[mask]
     result = {}
-    for _, row in eq.iterrows():
-        symbol = str(row[trading]).upper().strip()
-        if symbol not in futures_symbols:
+    duplicates = set()
+    for _,row in eq.iterrows():
+        symbol = str(row[trading]).strip().upper()
+        raw_id = str(row[sec_id]).strip()
+        if not re.fullmatch(r'\d+(?:\.0+)?',raw_id):
             continue
-        try:
-            sid = str(int(float(row[sec_id])))
-        except (TypeError, ValueError):
-            continue
+        sid = str(int(float(raw_id)))
         if symbol in result and result[symbol][1] != sid:
-            raise RuntimeError(f'Ambiguous Dhan cash security ID for {symbol}')
-        result[symbol] = ('NSE_EQ', sid, 'EQUITY')
-    if len(result) < 50:
-        raise RuntimeError(f'Only {len(result)} verified stock mappings found; master schema may differ. No partial watchlist published.')
+            duplicates.add(symbol)
+        else:
+            result[symbol] = ('NSE_EQ',sid,'EQUITY')
+    for symbol in duplicates:
+        result.pop(symbol,None)
+    if len(result)<50:
+        # Provide useful diagnostics without silently accepting bad mappings.
+        example = master[[trading,sec_id]+[c for c in (segment,exchange,instrument) if c]].head(4).to_dict('records')
+        raise RuntimeError(f'Only {len(result)} NSE F&O cash IDs matched; NSE list={len(symbols)}; master columns={list(master.columns)[:20]}; sample={example}')
     DHAN_SECURITY_MAP.clear()
     DHAN_SECURITY_MAP.update(result)
-    _UNIVERSE_CACHE = dict(result)
-    LOG.info('Discovered %d NSE F&O stocks from Dhan master', len(result))
+    _UNIVERSE_CACHE=dict(result)
+    LOG.info('Verified NSE F&O stock cash mappings: %d / %d',len(result),len(symbols))
     return dict(result)
 
 
