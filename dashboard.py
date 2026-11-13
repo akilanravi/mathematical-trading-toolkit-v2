@@ -722,7 +722,8 @@ def render_live_radar():
     st.warning("SAFETY MODE: Rankings are research watchlists, not entry signals. Strike and stop-loss are withheld until verified against actual contracts and entry rules. Previous indicative strike intervals were unverified.  Actual expiry, strike availability, lot size, option LTP and liquidity require an instrument master + option-chain check. Dhan candle timestamps are displayed; data more than 10 minutes behind the newest scanned candle is excluded from rankings. Yahoo fallback is disabled for radar rankings. Institutional activity is inferred from volume, not verified FII/DII trades.")
 
 with tab_radar:
-    render_live_radar()
+    from tab1_radar import render as render_tab1_only
+    render_tab1_only()
 
 # TAB 1: ALL F&O SCREENER
 # ----------------------------------------------------------------------------
