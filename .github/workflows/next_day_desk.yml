@@ -1,35 +1,87 @@
+
 name: Next-Day Desk Snapshot
+
 on:
   workflow_dispatch:
   schedule:
-    # 16:20 IST Monday-Friday (GitHub scheduling can be delayed)
-    - cron: '50 10 * * 1-5'
+    # 17:30 IST = 12:00 UTC, Monday-Friday
+    - cron: '0 12 * * 1-5'
+
 permissions:
   contents: write
+
 concurrency:
   group: next-day-desk
   cancel-in-progress: false
+
 jobs:
   snapshot:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r requirements.txt
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check Dhan credentials
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$DHAN_CLIENT_ID" ]; then
+            echo "::error::DHAN_CLIENT_ID missing in GitHub Actions Secrets"
+            exit 1
+          fi
+          if [ -z "$DHAN_ACCESS_TOKEN" ]; then
+            echo "::error::DHAN_ACCESS_TOKEN missing in GitHub Actions Secrets"
+            exit 1
+          fi
+          echo "Dhan credentials are configured."
+
       - name: Generate after-close snapshot
         env:
           DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
           DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
         run: python next_day_engine.py
+
+      - name: Validate snapshot
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("snapshots/next_day.json")
+          if not path.is_file():
+              raise SystemExit("Snapshot file missing")
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+          if not isinstance(data, dict) or not data:
+              raise SystemExit("Snapshot is empty or invalid")
+
+          print("Snapshot JSON validated.")
+          PY
+
       - name: Commit validated snapshot only
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add snapshots/next_day.json
+
           if ! git diff --cached --quiet; then
-            git commit -m 'Update after-close next-day watchlist'
+            git commit -m "Update after-close next-day watchlist"
             git push
+          else
+            echo "No snapshot changes to commit."
           fi
