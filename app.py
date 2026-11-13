@@ -9,7 +9,7 @@ st.markdown('''<style>div[data-testid="stTabs"] button,div[data-testid="stTabs"]
 def provider(cid,token):return DataProvider(cid,token)
 @st.cache_data(ttl=10,show_spinner=False)
 def quotes(cid,token):
- p=provider(cid,token);return {symbol:p.quote(symbol) for symbol in INDEX}
+ p=provider(cid,token);return {symbol:p.index_quote(symbol) for symbol in INDEX}
 init()
 try:cid=st.secrets.get('DHAN_CLIENT_ID','');token=st.secrets.get('DHAN_ACCESS_TOKEN','')
 except Exception:cid=token=''
@@ -21,6 +21,20 @@ if st.button('Refresh index quotes',key='quote_refresh'):
 if 'top_quotes' not in st.session_state:st.session_state.top_quotes={}
 if st.button('Fetch top bar values',key='quote_fetch'):st.session_state.top_quotes=quotes(cid,token)
 topbar.show(p)
+with st.expander('Dhan connection diagnostics',expanded=False):
+ st.caption('Checks instrument mapping and quote permission without displaying credentials.')
+ if st.button('Test Dhan connection',key='dhan_test'):
+  if not cid or not token:st.error('DHAN_CLIENT_ID or DHAN_ACCESS_TOKEN missing from Streamlit Secrets')
+  else:
+   try:
+    sid,seg,_=p.resolve_index('NIFTY 50')
+    st.write('NIFTY mapping:',{'security_id':sid,'segment':seg})
+    result=p.request('marketfeed/ltp',{seg:[sid]})
+    item=result.get('data',{}).get(seg,{}).get(str(sid))
+    if item and item.get('last_price') is not None:st.success('Dhan LTP returned successfully: '+str(item['last_price']))
+    else:st.warning('Dhan responded but no LTP was returned. Check segment and instrument master mapping.')
+   except Exception as exc:st.error('Dhan diagnostic: '+str(exc)[:400])
+
 # Segment control avoids eager execution of all st.tabs content.
 choice=st.segmented_control('Section',['Radar','Next-Day Desk','Deep Analysis','Paper Trader'],default='Radar')
 if choice=='Radar':tab1_radar.render(p)
