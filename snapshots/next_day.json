@@ -1,5 +1,5 @@
 {
-  "generated_ist": "2026-11-13T17:46:56.147077+05:30",
+  "generated_ist": "2026-11-13T17:53:22.268904+05:30",
   "session_date": "2026-11-13",
   "status": "research_only",
   "method": "Dhan-only technical ranking; news context unscored",
@@ -55,125 +55,998 @@
       "discovery": "Google News RSS; article not independently verified"
     }
   ],
-  "bull": [],
-  "bear": [],
-  "scanned": 47,
-  "eligible": 0,
-  "errors": [
-    {
-      "symbol": "RELIANCE",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "HDFCBANK",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "INFY",
-      "reason": "'High'"
-    },
+  "bull": [
     {
       "symbol": "BHARTIARTL",
-      "reason": "'High'"
+      "side": "Bull",
+      "score": 79.6,
+      "technical_points": 8.0,
+      "opposite_points": 0.0,
+      "price": 2119.5,
+      "volume_ratio": 1.6,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 2123.22,
+      "stop_underlying": 2118.39,
+      "target1_underlying": 2128.06,
+      "target2_underlying": 2132.89,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "8/10 directional technical points",
+        "Volume 1.60x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "BHARTIARTL Share Price Today - Bharti Airtel on NSE/BSE - scanx.trade",
+          "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1NenFfV0tfelcwTUZ5SVFva2hGZUdqekowbmVqMXpIQnFRVkgwakU4MlpTUHNSVzU0Z2dXQzRpNW1zVl9pVndxWFVSRzhKTnhPWnVqa09hbUk?oc=5",
+          "published": "Fri, 13 Nov 2026 08:41:12 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Bharti Airtel Limited (BHARTIARTL.NS) stock price, news, quote and history - Yahoo Finance Singapore",
+          "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE1qLTh0RWhrcTJKWmcyVHJMQUMxNVp3MHNNTzJab1VpUl9wQ0dsVUp0azBGZ0tSYjBwZ0Y3bWFtRmV2QUZtVFlaSnREdVh1aVE4MHdiM0o5M3FfMG5RTGc?oc=5",
+          "published": "Fri, 13 Nov 2026 00:00:14 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Bharti Airtel Share Price - Live NSE: BHARTIARTL Stock Price & Chart - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5yVGN2YlBzbU5xc0FJSkctUlVUMzAzSHdiOENtSzV1TlJyZHhSVGZIVVVyUEw0MVpwMm1HVDRxOGM3akMyaGhNaUZUZ09TQ0N4b2Vjd3lLaW1DaEg4QXRJbU5BQjZJcjN3MGlBSQ?oc=5",
+          "published": "Thu, 12 Nov 2026 05:37:34 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "Bharti Airtel Ltd. - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNLXVJUXFNVjJuUHEtTmRvTzJvdTBOT2FqRzh6T285M3N5T00yTkRCTk1TZ1pGVTFxSEt6eDRDYVl4R05NN2QwV3U0QWdRdFh1OU5raHE4Z1ZFMDRDbzFCSVpXS2tvVXJDSzNNYXpaMGlzQ1FBQTRyTlcyTVI0S25TbmRzTTRyUHBhMFJPYkdPS1VhbWxKN0hLR21tMA?oc=5",
+          "published": "Thu, 20 Jan 2011 22:12:15 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
       "symbol": "ITC",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "LT",
-      "reason": "'High'"
+      "side": "Bull",
+      "score": 61.6,
+      "technical_points": 5.0,
+      "opposite_points": 2.0,
+      "price": 284.45,
+      "volume_ratio": 2.2,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 285.34,
+      "stop_underlying": 284.74,
+      "target1_underlying": 285.94,
+      "target2_underlying": 286.53,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "5/10 directional technical points",
+        "Volume 2.20x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "ITC Share Price - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5IMkRMcVVlTDVzbjFob3JsSlJPSWdHbFpvZjJyLTlwQnY4ejlneWdlUk01d1VMbnE2ejBSeWNvcXZuMnZWbklIeVM4UU5hcmMwendocGU1UmE1UQ?oc=5",
+          "published": "Thu, 12 Nov 2026 19:23:24 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Stocks to watch: Bajaj Finance, GRSE, LIC, Meesho, ITC, Tata Investment - Business Standard",
+          "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxPYzVrQXZQQmcyY2Vvdk1yakVvMWJxRDBnemFtU2ZxWE1UY3Z0TTdTdkUyLW0ydmE3ZTFNM1RpWWJrOGtRcWh4VmhPMUZyZGlMUk82ODZSTUFvcHFlUzJOM3IydmVaNUYzVFlTcnc4aEtXLVItdXdBWDlLYUw5ZDlrNUc1SzhYeGh4ZURCWkF2ZEYtSjY5cGtPSTNCRXJleVI4TVl4NktKSWo3U3Rob3JRQU16VTE2UHNVWXVvdkxidFZLaDZneTNCYWFlZ27SAdIBQVVfeXFMTzUyeEYtNmxSZkJDZGVsSTV0Um9zRG5rVkNHQ1c1UHltYVdrdlllMGtSaTBNbWhrcUNPakc5NkpEMV9vSXEyYVBnUnQwZGxRQV9wN182SzFlRUw0c2ZvQUR2QWg4WTFueGFyUWFMSGliVnBXOFV5WHVaN1d0RVdGV0N5eTEyNExQUV9NZlkxRWNybVh2dTF5TFpZeEtVSHdzLUY0dzNXQnl6c0lxSUdSX3JpRzd0RW83QnNxdjZ4LThDSUdYUkl3d3l2LVdocWFGYmtB?oc=5",
+          "published": "Thu, 12 Nov 2026 02:44:47 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Stocks to Watch Today: Bajaj Finance, Tata Power, Mishra Dhatu Nigam, Aurobindo Pharma, ITC, Aditya... - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMiqwJBVV95cUxPcDlWT2psaEdqTE1qUkViLWN2cnNLemlNb3cxUEFWTEtrblJqNUYtZ2MwR3lrcWZSTW8yOWV6QmU3VFdDWVYtcDA5c1BTRnFTZFNvSjRPQzZsbzZiamc3M1lUSnJrQU9iR1JTVS1YZUNURmRTTy0wOWV2RGRxbnB6T0lTemZLOC1mb29MZnZzWEt6cS1QSW1BSFIwWnFMbGRVQmxZbi14WjRXbGhKM0RuVGdocXlxN1MtdS1EaFJwcEVSYUNUWFRYLWFpNzR1WWtZNmpwSUE0N3NWMWFuWlQyYnVuTHlHeEo5YzhOcUVTZGRGd1NwM0wxby1ZZ1liaWFXSUxMR3QtbHpsTG5zLVJ3cjhGMHR1R0lQVmJhZzdEUkhKRENQTnJ0Ml9GONIBsAJBVV95cUxPa2EtaVdWZzc1QnNGUTlaRUxqNW5ESm4wVm5rWm9FQXlOczZHWlNMemhnNi02VHY3VDBqT0VFY3VzaVhaSzdTRHdYdU1VaW1XOUZjTjZGLWdTbG1vSWhlMTU5cFlsMVVTWWhuMXZhTjdzWktWM09JdmtIcWZoZnBEdDdsaTVjdHo4WnBKLS0xUEJzcU9NVXg2YnduRkFvQXlpWUZXWnhxeDlJSDhQTmpTQVJhSWhRRmlrOE55RVhpWnJmTEgxVzdxMW1FQXJicU11eURDbkQ1eUt0T2FleGpfcXdCeXc5SHNGZTJnSTgwMDlBX3Z3OGYzSEZIRy0zN1htckNqcXpMbnEzWmIxdldodDBFeHBrbVk5WXk5b21WZFFoaktwOWpxS19tbnJaWTYw?oc=5",
+          "published": "Wed, 11 Nov 2026 20:21:02 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "Stocks to Watch Today: Bajaj Finance, Tata Power, Mishra Dhatu Nigam, Aurobindo Pharma, ITC, Aditya... - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMiqwJBVV95cUxPcDlWT2psaEdqTE1qUkViLWN2cnNLemlNb3cxUEFWTEtrblJqNUYtZ2MwR3lrcWZSTW8yOWV6QmU3VFdDWVYtcDA5c1BTRnFTZFNvSjRPQzZsbzZiamc3M1lUSnJrQU9iR1JTVS1YZUNURmRTTy0wOWV2RGRxbnB6T0lTemZLOC1mb29MZnZzWEt6cS1QSW1BSFIwWnFMbGRVQmxZbi14WjRXbGhKM0RuVGdocXlxN1MtdS1EaFJwcEVSYUNUWFRYLWFpNzR1WWtZNmpwSUE0N3NWMWFuWlQyYnVuTHlHeEo5YzhOcUVTZGRGd1NwM0wxby1ZZ1liaWFXSUxMR3QtbHpsTG5zLVJ3cjhGMHR1R0lQVmJhZzdEUkhKRENQTnJ0Ml9GONIBsAJBVV95cUxPa2EtaVdWZzc1QnNGUTlaRUxqNW5ESm4wVm5rWm9FQXlOczZHWlNMemhnNi02VHY3VDBqT0VFY3VzaVhaSzdTRHdYdU1VaW1XOUZjTjZGLWdTbG1vSWhlMTU5cFlsMVVTWWhuMXZhTjdzWktWM09JdmtIcWZoZnBEdDdsaTVjdHo4WnBKLS0xUEJzcU9NVXg2YnduRkFvQXlpWUZXWnhxeDlJSDhQTmpTQVJhSWhRRmlrOE55RVhpWnJmTEgxVzdxMW1FQXJicU11eURDbkQ1eUt0T2FleGpfcXdCeXc5SHNGZTJnSTgwMDlBX3Z3OGYzSEZIRy0zN1htckNqcXpMbnEzWmIxdldodDBFeHBrbVk5WXk5b21WZFFoaktwOWpxS19tbnJaWTYw?oc=5",
+          "published": "Wed, 11 Nov 2026 20:21:02 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "- Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxNZF9VdTFtYjFzYTRuN3JkdE1zZmdlMnozR3h4WTgtek5DNEtWRTR3eWZuZ1VyeUd5OG83N0FEQ2tfOFVqR2xFYThQcm53dUpPTDFKeF9tYXp4MFJ6cnVLOU1rQjhwUE5SWFh0QTM3bTlfSXB3d002RlpmWjRCdFJHTF9oVWdpZklxXzVpdmt5RQ?oc=5",
+          "published": "Thu, 12 Nov 2026 04:02:52 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
       "symbol": "KOTAKBANK",
-      "reason": "'High'"
+      "side": "Bull",
+      "score": 61.0,
+      "technical_points": 5.0,
+      "opposite_points": 3.0,
+      "price": 488.25,
+      "volume_ratio": 1.89,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 490.49,
+      "stop_underlying": 489.17,
+      "target1_underlying": 491.81,
+      "target2_underlying": 493.13,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "5/10 directional technical points",
+        "Volume 1.89x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Kotak Mahindra Bank (NSE:KOTAKBANK): What Does the Rs 20 Lakh Court Fine Mean? - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQUkxNZmZ2WW8xMWkyN1lfYzZYWTF4dWJpa0czRlNnSDZLUHZYZ1BrVm0tT1dwNVFpNEQwNkFCRVJOTzlERE9tRDBxVXRoRG94NzZDekVuVkItQU0tNXl4a0Y1ZzFTRnNJdUxKY1VkWlpvZE40dVM4cVRIX2Y5TXNUX0RwbzZ4aVRtd1Q3NlJjQ1lzRER6SVhnZkZWS1Bqb0RDVzBtV0pTSXBpdmhxMG16WXFRMGxPUkpMUnJNS0p3?oc=5",
+          "published": "Thu, 12 Nov 2026 10:26:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Kotak Mahindra Bank: Citi raises target to Rs 565 on execution, not a reset - Business Upturn",
+          "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPWGl2TFdYTEJJcXlfdHFtS2tCODRJTmlVNVJ0amxZTTQ0YUNDNkoxMjJKbEZ5Qm8takxKczR4WnQ0Slp1R2ZvRXp3eHhXal9UWjVGb3dLZjY1b1hKeGktR1hXcWlJUnUzSUdZQWdpcE50MmFUS2VMV2lkM2ZqMUZrWXI1ZU1rNVdRRk9LNm5ycE53UnEzNGpsSERQZG5qSjE5dkJfazZtOXNGbFN4cFRKNDNRUVpzTTBDZGJTbFlMM0NOMFh3cnVVVA?oc=5",
+          "published": "Fri, 13 Nov 2026 09:29:31 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
-      "symbol": "TATAMOTORS",
-      "reason": "'High'"
+      "symbol": "RELIANCE",
+      "side": "Bull",
+      "score": 60.7,
+      "technical_points": 7.0,
+      "opposite_points": 0.0,
+      "price": 1340.7,
+      "volume_ratio": 1.02,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 1350.91,
+      "stop_underlying": 1347.78,
+      "target1_underlying": 1354.04,
+      "target2_underlying": 1357.16,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "7/10 directional technical points",
+        "Volume 1.02x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Top 30 Stocks For New Investors In India November 2026 - Samco",
+          "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOdXc3YnppbkVRc1M2ZmotTUFZcFQtNzg5WGt5aW1NYW1MSURkaXVRRlZCbWZMUnJpX2FCLWlWOXBTV09CRngtVHRHcGR3LW5HNHg2SWV5d1pZenFlQmZkdmxhVTE3eWJIcllWaUNUVWVhaEtodllzMV9wczhTODRkRS1LaDdKaWo0aFJReklvX0RZaUE?oc=5",
+          "published": "Thu, 12 Nov 2026 06:51:21 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Upcoming IPOs with shareholder quota: Reliance Retail, JSW One, IGX, Mahanadi Coalfields & more - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxNNTFFVXJ6ekh4d2FURThiTmdDTWp2SDVDcHdSYVpNQkIwU0NDd3F5YzZTRlhVNXk3T21EMFh1MnRRWWFSUDd0TVdtY0Y3ZklicnZuVUxqV2tvZ2F0YVBLVHRpVmxpc0kyWDlJemZxTEdwU2F3V0l0bEVCWW5vQy1lUTJ6a2w4dnJtYmJPX0gxbzktQmJtOHpjWHVSZEtudF96RWU4UjFDOGZfVW9hVER3RzZlLWx2SjVILWhHeVpMTXVwY2R6ZDE0R3hhTWRZTXBiNUd3cjZsRlExczE1OXJLSnRTb1U?oc=5",
+          "published": "Thu, 12 Nov 2026 05:21:30 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Reliance Power RPOWER Board Meeting Outcome November 2026 - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxON3BiMnF1a2RPQklLaEg1MmdhWFBGVFhLMC15ZlhWX2ZlRDdPVkVTb05aRDczdUhyU2J0ZFdscWkxRE1BOENJamo0REpkMlk5RWlFV05QZGRzazhfTG80Mmw4RDFmc2xVS2x2QldhX2h2c3Qxamp4end5blRyMmppbjVkTzFFYVdJeU42NkRYX1ZWdThsUjdzYzdtYXZlSHlkcDhiblVUVmVNUHJscXhMX01MOHhVZWdnc0E?oc=5",
+          "published": "Thu, 12 Nov 2026 14:14:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "RBI's PSL draft may ease banks' reliance on certificates as lending options widen - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxNaTMwdmVfOXRXc2Q1NmZuLVY5U2V1bWo1U3JtN1QzcVViaGFyTFhNWm5jQ21wMldTc2pnSnd2eGE5S3h3STByQklKQnpWcFpSMExDTGZpZEEwRGxoU1E3a1h6VWdpOXNETFA1WU9xUHE4VmJKU2N2TFJNaHRZRWhzOFJvTFNWWnRtREhRN2tXYjQ3WXM3Mmt5YTBfLUc4djhUT09MQ0ZRVFctVll1X3IwYWc2dXAyaUFOZ2haQXNtcmtGcFNweWZpbGQycUZhS0c5Vm1JdGh1dWFUeE1NamlnTNIB4AFBVV95cUxNaTMwdmVfOXRXc2Q1NmZuLVY5U2V1bWo1U3JtN1QzcVViaGFyTFhNWm5jQ21wMldTc2pnSnd2eGE5S3h3STByQklKQnpWcFpSMExDTGZpZEEwRGxoU1E3a1h6VWdpOXNETFA1WU9xUHE4VmJKU2N2TFJNaHRZRWhzOFJvTFNWWnRtREhRN2tXYjQ3WXM3Mmt5YTBfLUc4djhUT09MQ0ZRVFctVll1X3IwYWc2dXAyaUFOZ2haQXNtcmtGcFNweWZpbGQycUZhS0c5Vm1JdGh1dWFUeE1NamlnTA?oc=5",
+          "published": "Wed, 11 Nov 2026 05:58:02 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "iPhone 17 Pro price in India drops to Rs 54,990 at Reliance Digital with exchange offer and bank discount - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMigAJBVV95cUxNQ3V1M1c1SzJFRUFXcW9DdlJKUnlOVDJGaGx4UXZ3cC13VGlGMU9MYkdocmkzVGtsN19FQWl5STZXejJHTndMVjh5YWtxWU5wT0JpSkRWVmQyYWZiVGlfdDhNRDNOeEdNckQwNkswVE5YekllSGVOX1dSM0NQREZZMllDY0tnUnBIS2lQazFxYXQ3UEY2NGdSakVmcW5MVEk2dW9WWkVEZmt2TmEybEpZRDBlR282Y1pIdk12R3VGYXoyUW9sUWFhaDJ4SUNPZ0x2eFRrS3o0QkRiY3d5N1ozSXJ4OVF2WDdGRlZYTVpxU1NXcVB0djNFdG9fYTBiYUVo0gGAAkFVX3lxTE1DdXUzVzVLMkVFQVdxb0N2UkpSeU5UMkZobHhRdndwLXdUaUYxT0xiR2hyaTNUa2w3X0VBaXlJNld6MkdOd0xWOHlha3FZTnBPQmlKRFZWZDJhZmJUaV90OE1EM054R01yRDA2SzBUTlh6SWVIZU5fV1IzQ1BERlkyWUNjS2dScEhLaVBrMXFhdDdQRjY0Z1JqRWZxbkxUSTZ1b1ZaRURma3ZOYTJsSllEMGVHbzZjWkh2TXZHdUZhejJRb2xRYWFoMnhJQ09nTHZ4VGtLejRCRGJjd3k3WjNJcng5UXZYN0ZGVlhNWnFTU1dxUHR2M0V0b19hMGJhRWg?oc=5",
+          "published": "Wed, 11 Nov 2026 07:28:22 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
       "symbol": "MARUTI",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "TITAN",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "COALINDIA",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "HINDALCO",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "JSWSTEEL",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "BAJAJ-AUTO",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "HEROMOTOCO",
-      "reason": "'High'"
+      "side": "Bull",
+      "score": 59.6,
+      "technical_points": 5.0,
+      "opposite_points": 3.0,
+      "price": 12912.0,
+      "volume_ratio": 2.51,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 12980.32,
+      "stop_underlying": 12945.53,
+      "target1_underlying": 13015.1,
+      "target2_underlying": 13049.89,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "5/10 directional technical points",
+        "Volume 2.51x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Maruti Suzuki schedules investor meetings for November 17 to 19 - scanx.trade",
+          "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNWVBiNkhLbFlKTzdhNWFxS1F5bzhxWEExY2gyZVJUMkN1dVFVc0JlamZPb1VxMXBVNFdpQUZCTTItcWZNSUotRzBhNWdvSEdVZl93MHpQQXdhbkg2MEdmQTBMMGhDUl9lTzlqQXFMYldDTU1EMzhUM0JZQjBRbWhVbWh2OWdkcVlMYU9JSUhLb0czZFNISXk4M2ZZY2JWZUpJSU00Z3FFMUluRXg0emVrbkVXNA?oc=5",
+          "published": "Thu, 12 Nov 2026 06:58:10 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Top 30 Stocks For New Investors In India November 2026 - Samco",
+          "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOdXc3YnppbkVRc1M2ZmotTUFZcFQtNzg5WGt5aW1NYW1MSURkaXVRRlZCbWZMUnJpX2FCLWlWOXBTV09CRngtVHRHcGR3LW5HNHg2SWV5d1pZenFlQmZkdmxhVTE3eWJIcllWaUNUVWVhaEtodllzMV9wczhTODRkRS1LaDdKaWo0aFJReklvX0RZaUE?oc=5",
+          "published": "Thu, 12 Nov 2026 06:51:21 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Maruti Suzuki MARUTI Investor Meetings November 2026 - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOdXlYVXRoOEp0eXdjR3p6X0c2NXIyZ01jZHE5MzEwbnVUOHV3RHc0RngzdWlVeGtqT1hUNkVHbWtweGZJZUN2cmpCTVRDanRCRG45cVZoVkF4TTIyajRWbG9jOENrb2JxclFoQVgyOFV1S25oSl85LXcxTXprS2x1M1I4ZXBFYk9aQWNSaHBqNS1iNGhUSHltTGVPVGxfcEhMTFoxeUViNzR0ZkhIT1VuMHRtZ3pLNTFQT3BTVGMzNDQ4TVVIYkJPNEd2TnFOQVdPRVE?oc=5",
+          "published": "Thu, 12 Nov 2026 06:27:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "India's MPV market nearly doubles in four years despite SUV boom - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxOTDdza0F3S1JZTlI2ZjdLX3pXd1Q0cDFSR2pZbUdpX2R3NFhGcS11RnhIdkdITlpHMFpldk9RNWpsWDBrV1RFaUFYTVVZTkwzendmbW1RMUtieGY0NVZpVXZIaG9Nb3ZOY0F2QUwtOXp4MWNXVFRwbnRvNjBER2hzaUhmU3ZVYy1MX3B4YWYyekx0V1NIRDZhNnlFYnZ3RWZTWkJoU0V0ZjNMbzRhd3BnZDdwMWhjcHVaZFdCUm1nSHY3SXk2R1RjSVVR0gHKAUFVX3lxTE5MN3NrQXdLUllOUjZmN0tfeld3VDRwMVJHalltR2lfZHc0WEZxLXVGeEh2R0hOWkcwWmV2T1E1amxYMGtXVEVpQVhNVVlOTDN6d2ZtbVExS2J4ZjQ1VmlVdkhob01vdk5jQXZBTC05engxY1dUVHBudG82MERHaHNpSGZTdlVjLUxfcHhhZjJ6THRXU0hENmE2eUVidndFZlNaQmhTRXRmM0xvNGF3cGdkN3AxaGNwdVpkV0JSbWdIdjdJeTZHVGNJVVE?oc=5",
+          "published": "Wed, 11 Nov 2026 11:27:39 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "- Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxNZF9VdTFtYjFzYTRuN3JkdE1zZmdlMnozR3h4WTgtek5DNEtWRTR3eWZuZ1VyeUd5OG83N0FEQ2tfOFVqR2xFYThQcm53dUpPTDFKeF9tYXp4MFJ6cnVLOU1rQjhwUE5SWFh0QTM3bTlfSXB3d002RlpmWjRCdFJHTF9oVWdpZklxXzVpdmt5RQ?oc=5",
+          "published": "Thu, 12 Nov 2026 04:02:52 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
       "symbol": "DIVISLAB",
-      "reason": "'High'"
+      "side": "Bull",
+      "score": 59.5,
+      "technical_points": 6.0,
+      "opposite_points": 2.0,
+      "price": 11419.0,
+      "volume_ratio": 3.13,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 11647.21,
+      "stop_underlying": 11621.61,
+      "target1_underlying": 11672.81,
+      "target2_underlying": 11698.41,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "6/10 directional technical points",
+        "Volume 3.13x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Divi's Laboratories Q2 FY27 Earnings Call Key Highlights - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPS0VQekVMaUVIYVFxRmJxSEpFejJkRXZrdWpNQW9GU243NTFGOEFxdmJJNGpIR19YZDIxY3lCVzloNVRtVENUbGJjemxUYXBHZUNmYk9JRkhGTncyR3o2UmdSak9GdktubmlyY3RjMFVXQXRScmFzdkdHQkEwM01FN1N2OVROTXgxSmE2VTdhb3hTVTRxc2gwQ2d5ODZLV2VBeEhSV1V1NWxndXJPSE53YWJYdkFKdWlyZmQtM2lzSXplNU82QjFOSlJn?oc=5",
+          "published": "Fri, 13 Nov 2026 06:06:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "The Bet Divi's Laboratories Holders Made Before A 82% Jump - Simply Wall St",
+          "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQY0lvR1NadFFTWWJQX3dkS20xa0hCY0hBSlBtSlFyMWtqcHg4Yi1Iall6cUFNMUVmblcwbHdNSFJMOC1DckZ3NnFsU1JjLTQ1aWtxUm9oYTVaX1BwdmlHcUNzYXMxT0lBUXhXbGczR1dlTkRiXzJ6ZjRoWnVGTnlIQzV4ZHdRWnlKdENBWmpHaTIxRUY4Tk1lekNWdFBwRWp6dlRfdEpuX25OYTk2QU1GZS1TX1hQTDNtektDenRCQnlGaXgxUEVKMDVmOXh2N1EyMmVhWEppNWlwSFJLRE9acHZjOXVZTGdTTGZnZtIB8gFBVV95cUxObllMakpGa2RwOC1XVk01UmxpSko1VWMzV0tnZEljY0tUR2F6enF3UG82dmZTdlY2MWRremZYYXhoTGZyUmJrRTdUT2dXYkZvU2dQRWprZkMxMmFMTHJfUTRGQXlGckRwYmhoZlk2SXdvQUZrR1dGWXpOcjY5Q1hPaFMtNzRtZDNNeWUzOXNzM2VFbGxnRjAteDBaQUw5ZFQ0d1pmSUVsaUVwcDJRWEdBS2xoWXlmN0U3MWMxWlJXV1BOZnRCOVUtb2REaDRQNTRBa2swem12OUYxdE9tb05jZWpuTHpETTVuRHF5OG9XaTRuZw?oc=5",
+          "published": "Fri, 13 Nov 2026 00:23:14 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
-      "symbol": "CIPLA",
-      "reason": "'High'"
+      "symbol": "HEROMOTOCO",
+      "side": "Bull",
+      "score": 59.3,
+      "technical_points": 5.0,
+      "opposite_points": 1.0,
+      "price": 5360.0,
+      "volume_ratio": 2.01,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 5394.45,
+      "stop_underlying": 5380.26,
+      "target1_underlying": 5408.63,
+      "target2_underlying": 5422.81,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "5/10 directional technical points",
+        "Volume 2.01x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [],
+      "moneycontrol_news": [
+        {
+          "title": "Hero Motocorp Ltd. - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNY0RhaTg0N0VHTXV5bWVMcXJPdDViVzh1ckM2RFBnbXV2UmJndXdoNHg1cTZ1WXdLSDRGdTZDLUZYeEM4Y0l0bjhDWGlReXB2dGhKSVhkMUItd2hOU05FQkxSbWNQS0oycElEYVplYkJMSXE1WXBSd21sQi1EZTJVeFY2QWNTOVNqTHNtTA?oc=5",
+          "published": "Fri, 13 Nov 2026 09:34:37 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
-      "symbol": "APOLLOHOSP",
-      "reason": "'High'"
-    },
+      "symbol": "HDFCBANK",
+      "side": "Bull",
+      "score": 56.6,
+      "technical_points": 5.0,
+      "opposite_points": 3.0,
+      "price": 802.55,
+      "volume_ratio": 1.79,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 808.9,
+      "stop_underlying": 807.39,
+      "target1_underlying": 810.41,
+      "target2_underlying": 811.93,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "5/10 directional technical points",
+        "Volume 1.79x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "HDFC Bank Limited (HDFCBANK.NS) stock price, news, quote and history - Yahoo Finance Australia",
+          "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE80THE4Tnh0UmxseTFGd0VrenBtcFp6VVNNWHE3aEUtd0x0dDluMUstTUI2MUx5Q1hiek9HWGs2QXhRRUZ0bS1xM1FGZVNMY19jZmZyX09LSjZ6SmM?oc=5",
+          "published": "Thu, 12 Nov 2026 08:52:18 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "HDFC Bank HDFCBANK Morgan Stanley Asia Pacific Summit 2026 - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQUkgyR29iczIteFFyZDJKbmRrTVZxZlktME9vRzZLdjBCa1U3S3pRZVMzVW5teEMyNVU2M3B0a2Y4SE1QNDlEWXBXa1NCVGNMMXZJOU04NlpNT2EyckluX3lFTG9ocU5uLWEtT21tbHpyV2tTaGFLWHUycS02azhsaTF4ZUhhLXM4cmxHSnNhNW55TUdGeVhxM2hVb3pqT09jUFBYZWNmOTZqdUtYdW1wRW5lSV9ndF9HLUVpclVxOVRTMktpeUE?oc=5",
+          "published": "Thu, 12 Nov 2026 08:57:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "SBIN Share Price Today - State Bank of India on NSE/BSE - scanx.trade",
+          "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1aWHZ5LXcwV0pmVF9BUW1zdktZM3FabWptN3l2d0RpdXhfSm85ZGhJTWY1T0dOSnFCVjFFc05OcDNTOWo2YUpOR2tNZmdJYzRkQmVXaWNtWm53bUdvSTlVWA?oc=5",
+          "published": "Thu, 12 Nov 2026 01:11:01 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "“Your banking isn’t down”: HDFC Bank tells customers as Microsoft outage affects Outlook users - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPM1hfNzRqb1JneWtzTkRzRnJ1NWtjdjVSQXpMSGpWZG54TGhhcjhqdlJqSjVLVGtnVERNeHM2bmd0Q0gtcWV5YnBIX0dhalEyVkxaTi1tOW42emNXeXBpdy1RcTNTVFU2RVFKNnpvcFFjV2daQVBmdDY5R2RqdEtvLUJxV0tLVDZQenhjNlZveHVaVGJ2UTNTdmg2TDNtc1dBVFZ1WlFmc2lkZDhvTi1mSGF4aHB6R1VHOWRQMks2M0pRNm1vLTA5SWdWeURvVDBtZWdvMGRlSTQ3SjV3VFRLZzJnWDctRHNU0gHuAUFVX3lxTE9QdmJqemVrVGJDd1ZadEJrdXB3bmgwMDFyQ094QS1la1lnLWllRWpDbHVTeXVuNDNnd2wtZmNYb0pYMTZUa0Z4b1k3ZzdWUF9UcWZRc2c3SXZxLXc1UGFrVkdZRF9VY0lQRkJTTzB6MkxwclJrdl9Hazdfbk0wWEYzbEhaMXFvOGs0dU5uMjVsYjhtX3JkX3JKa2l0X3hqemg0RnNCVmJBRS1SYWZ1cFpIQ1RiWE5wRV90SWZ6UDlhUndMTzB6RjlOWXhtWmlYT1JrXzY1N3kxb241UGtrSTJrdFNTQ1NrNFpmZmkxNVE?oc=5",
+          "published": "Fri, 13 Nov 2026 08:53:07 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Ref. No. SE/2026-27/145 November 12, 2026 BSE Limited National Stock Exchange of India Limited Dept of Corporate Services Listi - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPMXN2SlhlRTNQMGI4Nk1pcnpQeUFLdHd5X2VpOUdaTTQ4UURiclJxVmpBSERvNW9JczctMWk1cVpUem1md2ZKZ2R6VVMwQlVNSlV1UTA5bnlKVmJwTGpfODV2cDNYTFBEYU41dUlFOHRSOVJuc0NxVzY4UGc0SmQxZ250Zw?oc=5",
+          "published": "Thu, 12 Nov 2026 11:54:49 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
+    }
+  ],
+  "bear": [
     {
-      "symbol": "GRASIM",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "HAL",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "NTPC",
-      "reason": "'High'"
+      "symbol": "TATAMOTORS",
+      "side": "Bear",
+      "score": 79.7,
+      "technical_points": 8.0,
+      "opposite_points": 0.0,
+      "price": 289.0,
+      "volume_ratio": 2.37,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 287.17,
+      "stop_underlying": 288.37,
+      "target1_underlying": 285.97,
+      "target2_underlying": 284.77,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "8/10 directional technical points",
+        "Volume 2.37x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Tata Motors Passenger Vehicles Limited (TMPV.NS) stock price, news, quote and history - Yahoo Finance Australia",
+          "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE5XZ0hGZFpsZ3ZHZDhzZDdCX1NLRFJtcG84Vkl3OUpILWZmS1FvRnV1bWR5V0czbzhwVEJ0RU9pcTZ2eDBpalEyUHBIUVp3LTc5dV80Qmt3?oc=5",
+          "published": "Thu, 12 Nov 2026 16:31:52 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "Tata Motors > Listing Details > Automobile - Trucks/LCVs > Listing Details of Tata Motors - BSE: 544569, NSE: TMCV - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9JZEJMNDIxSHJDNEVvN1ZsVmo5SDVrNmFZQk5fVHEtMTA5XzFoZkczWWVRa1dSalRPcjNvX2F5bDl5ejhYNk42RXFBMFJ6NmlnR21kWXVUT2ZMZlcySzRMMUZXZHZrMXljOTBNWExHSmpvWlVSVUE?oc=5",
+          "published": "Wed, 12 Nov 2025 13:08:04 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "NIFTY 50: NSE Nifty Live, Sensex Nifty, Nifty 50 Stocks, NSE Market Live, Nifty 50 chart live - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFB3R2VObVFTZ1MtVVoyZXZhZzBITVloa3BsNXdEeTM5Nl8tV1QzZUhaODhXa2otSmhJeFdVVXZCaGdxQVFPWi10U044UHFITU02QS1VMUdoVEFCNHlUMnRWc1ZVQTB5SlhBeW40?oc=5",
+          "published": "Fri, 13 Nov 2026 10:42:04 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
       "symbol": "BPCL",
-      "reason": "'High'"
+      "side": "Bear",
+      "score": 79.6,
+      "technical_points": 8.0,
+      "opposite_points": 0.0,
+      "price": 303.15,
+      "volume_ratio": 2.35,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 302.21,
+      "stop_underlying": 302.87,
+      "target1_underlying": 301.54,
+      "target2_underlying": 300.88,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "8/10 directional technical points",
+        "Volume 2.35x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "BPCL Share Price - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE4wdklFdjVkWllQRXhvR3NyZUNqdXJ5Z2t4eHo3Q05LaUprY2RFZlBDNmJURVI2Rnk3ODk3ajIyR1B3dWtKSjBzZ082X00yM0RNT0l2YmN0OWhtOWhRT1dQVmdtUndWaEYtaENnUGQtZ1A?oc=5",
+          "published": "Thu, 12 Nov 2026 02:40:54 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "BPCL Analyst Meet Schedule November 2026 | NSE:BPCL - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxPWjR4R1ZFVmVCOVkxMk5ndDZaRTE2b0NMV0VHN0puQjBMTjdUNTZEMEhIUEFaYnlubGp4dHdlMnhQV0pmbXNnZmlhNXM2cXVpVTA1Z3pWSXlyWjVxdlllcmZ6bnlOdFVzckNxdVAyREppeVdRTmZwZnotQlo0cXBaWmdyQVYxZ2hDaHM2NmkzNXpHVnJrTHpUR280Y2dFUXVaRkZQeVZRaWJ2UTJiQXE3WWdUWnNEZU5XSGZZTVltMkhRdW9DVG5UcFBwUmNaZm8?oc=5",
+          "published": "Wed, 11 Nov 2026 13:06:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "BPCL Standalone September 2026 Net Sales at Rs 149,041.05 crore, up 42.06% Y-o-Y - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOYmpLQ3dTdEhPc2d1bXJaTEVoUlFmVEozelZhckpMMVRQRlVUeEd5dzlPbGlVd1VBbllxNHlSTFp6dzRZbVY4RnFqYkJ6aHpFWHB5UW5PMWFLX0RKeTFHSUphYnVyVDdoX0x0SE5ZODRoOHoxS1pCZ2lsSHNnZ296WFg3c3pDcUUtTS1QeC16dEx0RTlsaDRYS05VNVlvZW0wS0N0Z1RRWXdHMHhPa0NBUXI4aEg5OGs0WXpWTnB1dDFUNWwtR1VBdlFZalFnWC1xTWtIaTZsQnJpdVHSAeABQVVfeXFMT3hUTGNFVV9zUWU0ZTEyZHNXNWV2bFNrcWNwSmdzNlloUE5NQWhUZi1HemJmTEptTldGV2tULW10ZDBxdlA1TV9IOF9nb0tYdEFqTUtZLUNDUkt2azdWby1QbGg1N0dkUzAzNlpDUjR3aVJLWkVxcko2RDZ3WC1EMlhDRVBhM0FWN180b2lfaXRFd3padmdqOGktSXNVOXU0T0R2YWRBcVZkRlFiZjBzVFpfMEE3ZXNIZk1vRUpuUF9HYWdEUTgxNHUwaUtZRGlsRDZ3S1Uxa0ZiVXdVYWk4V3M?oc=5",
+          "published": "Thu, 12 Nov 2026 09:03:56 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "BPCL Standalone September 2026 Net Sales at Rs 149,041.05 crore, up 42.06% Y-o-Y - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxPeFRMY0VVX3NRZTRlMTJkc1c1ZXZsU2txY3BKZ3M2WWhQTk1BaFRmLUd6YmZMSm1OV0ZXa1QtbXRkMHF2UDVNX0g4X2dvS1h0QWpNS1ktQ0NSS3ZrN1ZvLVBsaDU3R2RTMDM2WkNSNHdpUktaRXFySjZENndYLUQyWENFUGEzQVY3XzRvaV9pdEV3elp2Z2o4aS1Jc1U5dTRPRHZhZEFxVmRGUWJmMHNUWl8wQTdlc0hmTW9FSm5QX0dhZ0RRODE0dTBpS1lEaWxENndLVTFrRmJVd1VhaThXc9IB4AFBVV95cUxPeFRMY0VVX3NRZTRlMTJkc1c1ZXZsU2txY3BKZ3M2WWhQTk1BaFRmLUd6YmZMSm1OV0ZXa1QtbXRkMHF2UDVNX0g4X2dvS1h0QWpNS1ktQ0NSS3ZrN1ZvLVBsaDU3R2RTMDM2WkNSNHdpUktaRXFySjZENndYLUQyWENFUGEzQVY3XzRvaV9pdEV3elp2Z2o4aS1Jc1U5dTRPRHZhZEFxVmRGUWJmMHNUWl8wQTdlc0hmTW9FSm5QX0dhZ0RRODE0dTBpS1lEaWxENndLVTFrRmJVd1VhaThXcw?oc=5",
+          "published": "Thu, 12 Nov 2026 09:03:56 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "IndiGo jumps nearly 5%, Asian Paints gains 2% as aviation, tyre, oil marketing stocks rally amid crude... - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMiggJBVV95cUxNTloxUG9RZFl4amJiNDM5QkNQcmR6eVFSQXVZbWFlMm44TkttazU2REdTV1pkeXhnTk9peEFlQUhTeU80YnJ4MWVEZkY2TGx4UVBfZ2FnVDFLaTJ3OUlONlpDdGJoWENoVzRpTkRveTZiVkUzcmhMRmVLNTNKTHROLU16cTFPSDB6SjRqV2M5WFhpQlRxLTVHYXB2MjdfTTBabk9mUnZzTzRmZkJSb21NY3BZaDFVY1ppazJMRTg1MksyUmh3NW5mTVNDNGtwN0lmbW8zaXRFcXVBYVJRUHpPNV9Ed293MGlhSzRDTXhlU01IMldCMUwzSjlYUmIxSmMxM1HSAYICQVVfeXFMTU5aMVBvUWRZeGpiYjQzOUJDUHJkenlRUkF1WW1hZTJuOE5LbWs1NkRHU1daZHl4Z05PaXhBZUFIU3lPNGJyeDFlRGZGNkxseFFQX2dhZ1QxS2kydzlJTjZaQ3RiaFhDaFc0aU5Eb3k2YlZFM3JoTEZlSzUzSkx0Ti1NenExT0gweko0aldjOVhYaUJUcS01R2FwdjI3X00wWm5PZlJ2c080ZmZCUm9tTWNwWWgxVWNaaWsyTEU4NTJLMlJodzVuZk1TQzRrcDdJZm1vM2l0RXF1QWFSUVB6TzVfRHdvdzBpYUs0Q014ZVNNSDJXQjFMM0o5WFJiMUpjMTNR?oc=5",
+          "published": "Wed, 11 Nov 2026 04:48:01 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
-      "symbol": "CANBK",
-      "reason": "'High'"
+      "symbol": "LT",
+      "side": "Bear",
+      "score": 70.6,
+      "technical_points": 6.0,
+      "opposite_points": 1.0,
+      "price": 4139.9,
+      "volume_ratio": 1.65,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 4127.08,
+      "stop_underlying": 4134.85,
+      "target1_underlying": 4119.31,
+      "target2_underlying": 4111.54,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "6/10 directional technical points",
+        "Volume 1.65x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Godfrey Phillips Share Price - Live NSE: GODFRYPHLP Stock Price & Chart - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMickFVX3lxTFB3ZDNmYjZsQk1mcG5UZ2hVRzlhZjhZeHU2bjUzVHpFeGJqTWplMmFRdHVTUDZSSEdDVERMYm93ei1KUURkQzhnZ1g1R0ZvQjZQR0hRNDJEZ1M3alFNSTNlZXUzWDFFbi1LTHZTdi05OW0tUQ?oc=5",
+          "published": "Fri, 13 Nov 2026 08:35:20 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Nestlé India (NESTLEIND) Share Price Today (NSE), Market News - TechGraph",
+          "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9qZGxIaWZZUW1jX2xMT1o0czF3Zm8zcDYySkMzdHotZ2ZOMFpJWWI3TVRrUDdqRUljNERxWFNKRXRHMzRzTUQyamhBVFU3bmdrSWtHdFJZSmtSQmtDSEZ3dk5EZw?oc=5",
+          "published": "Thu, 12 Nov 2026 09:58:46 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "BAJAJHIND Share Price Today - Bajaj Hindusthan Sugar on NSE/BSE - scanx.trade",
+          "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5NVUxFU1ZhaXQwZzhDNXpRXy1xWTBZaHhjS0RzNURUb1A5M0w4WVh1TkpsQnNySWZEQW9CTDFEN3BnR1JnMEpicHhsMldFQ0tYNmkxNEpWMktVQ2tiUkRDZTNObm8?oc=5",
+          "published": "Thu, 12 Nov 2026 11:44:06 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "TATA POWER - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPRGh0dHFINUo4UUFVbnEtRksxUDhhbE5nMUtwcS1iOERSamdRajNMWUpCOEN0dEJjcHBBXzk4OE85eWFHUk5COVdBM1pwNzBGemZSUkpPV01xZUxrckpQeWhKTlRhV2FtT2sxT1RxZldYZjZMVDFpSkpHWUhKSnQ2Z2hPMA?oc=5",
+          "published": "Thu, 12 Nov 2026 12:14:53 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Aarti Industries - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPUHJabkh1eWJ4UUNUb2JLQTlYZ1BfY0hMWDNYOEJmaVpZUFpqT0hJQXZqT3lxOWFNbU5KRThzNmdIZDZoNVZiVjJKZUY0czEzOEdadDZGcmF1cFNCVzVQODEwM083UW1rcnY1ZHhZZ05ibzYxTFZ3ZDBydmdnMk9vVjJhTlh3b2pwVXNCWUJBcy1WZmR4Nk84ZHJENEJlcDhXSEFKTg?oc=5",
+          "published": "Thu, 12 Nov 2026 01:09:37 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
       "symbol": "SHRIRAMFIN",
-      "reason": "'High'"
+      "side": "Bear",
+      "score": 69.5,
+      "technical_points": 6.0,
+      "opposite_points": 0.0,
+      "price": 969.0,
+      "volume_ratio": 2.23,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 964.83,
+      "stop_underlying": 967.34,
+      "target1_underlying": 962.33,
+      "target2_underlying": 959.83,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "6/10 directional technical points",
+        "Volume 2.23x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Shriram Finance SHRIRAMFIN Investor Meet Morgan Stanley 2026 - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxQOHU5LXREb0dTTUxxOUhjUFYweGlNdkhZeDljckR5cUsxdG1yUU45LUk5NmlrYkV1VjFNYnpZNWhsSWlsa0ExT3dwZUMyMjBmLXJJdkhuZ2x5eWozMUs2YzVsQmlpZ09QY1czRFBnYjBPblBPN0Rhb1JZdXZhdW9FcXN6eUYwdWd4MzRnTzlPSlM5ODRtQ2ZNLTNCd1VYaWZBbEZTOVByWUxCYTZUNWtMOGFkM1BFWDBVMkRlT0sxYXBETVRiT1FLcU9SR3d0QkpSaDkwb2pyVUdNWkNv?oc=5",
+          "published": "Thu, 12 Nov 2026 06:23:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Stock Market Today: Sensex Falls 289 Points, Nifty Slips - HDFC Sky",
+          "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxPdFVmU2E4X1lka1dTRGNSZzVfUEl2ZGl4UnNJdTEtVHZxelI2SXFwalhqVWtaMERsNm9Fc0tiS3psZUpNY25VN0hwcXlmb3lLNlp6TURNY0xyYUQ4bDN5cVdSdFFYRUtEN2lKY205MnRxZ3VCZXhVaTVOUWhKbDBwVXVVMHE2WjBEelFLSEtXczYyTTRyTTNWNjlHMURxT2ExZWlMYXl5ZnUwUWFFVUttTlVBR05nTGhaWGxhNTZ3eGVBTEE?oc=5",
+          "published": "Fri, 13 Nov 2026 05:21:58 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "Shriram Finance Ltd. - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOdzVJY3otN1ljSFU1NzN2d1VnX3U0MXNJREhZb251M3lHUURtR2NhSS04bk85THc3OU9ubjZCekFIQUQ3Zll0OXZZcC1JOUJWTUJvQzVraHdLZ1lVZU5HNFFXOGYwNUJtSEZWdFZueS04OXZqYzZZNlhoSWpEci16Yjd4Slk0MG9OeDVTSmpzNTlTOHpsSU5Ba0ZyU1B6YTA?oc=5",
+          "published": "Fri, 13 Nov 2026 07:25:20 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
+    },
+    {
+      "symbol": "CANBK",
+      "side": "Bear",
+      "score": 69.2,
+      "technical_points": 6.0,
+      "opposite_points": 1.0,
+      "price": 131.66,
+      "volume_ratio": 2.38,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 129.98,
+      "stop_underlying": 130.3,
+      "target1_underlying": 129.65,
+      "target2_underlying": 129.33,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "6/10 directional technical points",
+        "Volume 2.38x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Canara Bank (CANBK.NS) Stock Price, News, Quote & History - Yahoo! Finance Canada",
+          "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTFBvNXBjVzVBNFlXRXp3TFJ0cXBuYkV1OEdQR0o2d0M5TEQ3a1JLcGVxOEl6bTJYdm1NeDlQUE43dEIyay1jUjhzbVF0VXBRcXdjN0ZxZlRoZw?oc=5",
+          "published": "Thu, 12 Nov 2026 14:33:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "SBIN Share Price Today - State Bank of India on NSE/BSE - scanx.trade",
+          "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1aWHZ5LXcwV0pmVF9BUW1zdktZM3FabWptN3l2d0RpdXhfSm85ZGhJTWY1T0dOSnFCVjFFc05OcDNTOWo2YUpOR2tNZmdJYzRkQmVXaWNtWm53bUdvSTlVWA?oc=5",
+          "published": "Thu, 12 Nov 2026 01:11:01 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "EQUITASBNK Share Price Today - Equitas Small Finance Bank on NSE/BSE - scanx.trade",
+          "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9hRHVrOXM1eUF6a2tPQzlneVF6aUstX1libWlZUUkwWDJNS0Vrb2NsenozdDh4QXlUb3NfRnp1LU9pandFdDc2LTUyeHJfLUFpckh0LWctbWNQcU9IbVdTT1dpWm1IM2pzb1E?oc=5",
+          "published": "Wed, 11 Nov 2026 22:56:32 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
+    },
+    {
+      "symbol": "CIPLA",
+      "side": "Bear",
+      "score": 69.2,
+      "technical_points": 7.0,
+      "opposite_points": 1.0,
+      "price": 1396.4,
+      "volume_ratio": 2.14,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 1391.85,
+      "stop_underlying": 1395.54,
+      "target1_underlying": 1388.17,
+      "target2_underlying": 1384.49,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "7/10 directional technical points",
+        "Volume 2.14x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Top 14 Pharma Stocks To Buy In India November 2026 - Samco",
+          "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNSmxaNUxpT2wtdzdBOEMwZ18tbzhmM3NVOXN1RXlaTy1wR1N2SmZRb0RKSlZPSUpvRnhxaTlHQnBpYXV5X2RhNHNlYnEtYjctblphSkpUbWJHRDRoRWZwY3ZXMmMwRlBYZWR2TFhMcUhHU0lOd19VVmY4a0pxYUF2djNyOWp0TE9Rc0E?oc=5",
+          "published": "Thu, 12 Nov 2026 06:50:53 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "8620.5 - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQdkRyYmlwWWE0enh4TG5Xb19DNG92WnF0bmVseEl5TzJoeFVMNkZqZ09MUFdqa2hSRUF3QmNpWnhib0FKSlBwYnhMOTNBZXZISHluRUE1dTVyRlFLZTl2WF9lQzBPVUxGSDRqU0VzOUNqYjdoYnhzU1B6WmtlRTFWNEFwY2hqa094T2t3TTh5UQ?oc=5",
+          "published": "Fri, 13 Nov 2026 04:36:29 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "- Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQVnpnRzd6SWtHXzM2YVNHQlh1V0ZGVmVqU2dmbWxac0FZcVBXNjRtempRTENzUFN2RHNmazVQa2lqcWVUaUphdUpKUm9QU0puQWZnRThGVzVwMVRfVWI3ODN1MEJsRFcxZkpLNTlPT0QyYmdzWDNONWxEeDhvdTJXUVNRVnVub3gzWjdya0dyZw?oc=5",
+          "published": "Wed, 11 Nov 2026 09:06:35 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
+    },
+    {
+      "symbol": "INFY",
+      "side": "Bear",
+      "score": 68.9,
+      "technical_points": 6.0,
+      "opposite_points": 1.0,
+      "price": 1138.6,
+      "volume_ratio": 2.34,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 1135.35,
+      "stop_underlying": 1137.55,
+      "target1_underlying": 1133.16,
+      "target2_underlying": 1130.96,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "6/10 directional technical points",
+        "Volume 2.34x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Infosys Limited (INFY.NS) Stock Price, News, Quote & History - Yahoo! Finance Canada",
+          "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE1qSFdlY3hSZ25GUmxrZmtVMHdua1AxMGRoVzVyZjEwb2JxYzdWanBWQzA4dzhJVVVQYUFTbHlNdmEydXRNX2hCNDJDcmY4alI1VHFTWWpR?oc=5",
+          "published": "Thu, 12 Nov 2026 04:02:52 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Nestlé India (NESTLEIND) Share Price Today (NSE), Market News - TechGraph",
+          "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9qZGxIaWZZUW1jX2xMT1o0czF3Zm8zcDYySkMzdHotZ2ZOMFpJWWI3TVRrUDdqRUljNERxWFNKRXRHMzRzTUQyamhBVFU3bmdrSWtHdFJZSmtSQmtDSEZ3dk5EZw?oc=5",
+          "published": "Thu, 12 Nov 2026 09:58:46 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Six, including climate change & quantum researchers, bag Infy Prize 2026 - The Times of India",
+          "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNYzNIT3I0OUhjcHh4TEFIWnFtUGtFVGE0eVhXbWFRQTNrVWMzSThWclpmZ21WQi1zYk9RbDRIQk9YUk5jREZBMExwb185S2VJT3FlUTJTdkFCZkpneTRsZXllNldpSDBGc0ZLU1d1Zk02cE80bU1JNWh5dk83eWk0OGZHX3FPd3dKcGpwREhyOXdpYzhpcmpidmZSaGpXTjNHeEdtTjZiMm8yUzRzZUQtbmZmMmtxT0lLdzM4bnNaN09jWUh6eGlVdzFsOTFrd3lKZGo5RTQtZkdTUdIB2gFBVV95cUxNYzNIT3I0OUhjcHh4TEFIWnFtUGtFVGE0eVhXbWFRQTNrVWMzSThWclpmZ21WQi1zYk9RbDRIQk9YUk5jREZBMExwb185S2VJT3FlUTJTdkFCZkpneTRsZXllNldpSDBGc0ZLU1d1Zk02cE80bU1JNWh5dk83eWk0OGZHX3FPd3dKcGpwREhyOXdpYzhpcmpidmZSaGpXTjNHeEdtTjZiMm8yUzRzZUQtbmZmMmtxT0lLdzM4bnNaN09jWUh6eGlVdzFsOTFrd3lKZGo5RTQtZkdTUQ?oc=5",
+          "published": "Thu, 12 Nov 2026 07:22:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "Infosys | Rights > Computers - Software > Rights declared by Infosys - BSE: 500209, NSE: INFY - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9BdUVJT1J3U3pLN1BNYlhwOWMwYzBTMUw3N3lfdFJyNy0zWjVsMEhCSHMwZ2xlajY1aFlWblNnMVFCQU1CVXllVHUyVVk4X0RQbEpZTFpWMWEySVlMeDRBdjlIb1RyendsM2pyaUJ3?oc=5",
+          "published": "Tue, 10 Nov 2026 21:26:47 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Infosys Share Price, Infosys Stock Price, Infosys Ltd. Stock Price, Share Price, Live BSE/NSE, Infosys Ltd. Bids Offers. Buy/Sell Infosys Ltd. news & tips, & F&O Quotes, NSE/BSE Forecast News and Live Quotes - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxOOWp1OWp3RlJtcEVaQzFqVDkyT1pVc1ZZVE1sUXk3dEFoaGZ3d1JBWWk4NlVNY1diY3ZYZFFDRW43LUhZd0xDOTRIV3hyeWZhWVc4VkxndkdtTFFFVjJNQ3cyUXZLUnpuSHVncVA5aFNyc3YwSFYxLVFKVWM4Y1RfcUhBam1nMnc?oc=5",
+          "published": "Fri, 13 Nov 2026 08:32:34 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
+    },
+    {
+      "symbol": "GRASIM",
+      "side": "Bear",
+      "score": 68.3,
+      "technical_points": 7.0,
+      "opposite_points": 1.0,
+      "price": 3040.0,
+      "volume_ratio": 1.42,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 3007.46,
+      "stop_underlying": 3030.53,
+      "target1_underlying": 2984.4,
+      "target2_underlying": 2961.34,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "7/10 directional technical points",
+        "Volume 1.42x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Grasim Industries Q2FY27 Results: Key Highlights for Investors - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOX3dUS1Z3d0wyTVlyTmRBSFJXVmowb25oZm9PTlRUVkZvNVh3MVZjbWFONl82WFdtc1lYSUs2cHVBUEIzS2s3Q0RXdXZBb2lDNGZtTjNjLXBXMjNxWEZ2dWlwZ0R1RkM1MFd2VmtsYWNhZ3JUaTI3VXdsMTdvdGlndXlxVDFfNU9hVGdXYkQ0dXh5TmRCQWllZktQWWotZjdRM0lHUjdmamMyTFZKUUk4eVN2LXFndTdlb2NYVA?oc=5",
+          "published": "Fri, 13 Nov 2026 09:05:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Market wrap, Nov 13: Indices snap winning streak; SENSEX falls 319 pts, NIFTY50 ends at 25,144; Shriram Fin top loser - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMiggJBVV95cUxPY0p5ZUNCSGRGTWdHY2JTYUluNGVwamFrOE1POHBFWi1YTWF3amNNQUg2UWM1azNkOE5FM1VLcmtETjZXLWU0ZWM3OERicDJHUXFQck5aNmJ2Z0lZRDBYZG1oSjdYM25XenJXbGtUUHJoNHhJZl8tMC15bVo5b21qNklWY2hNVEw5bzNnZXg0TnZ5akIzWEo4emluUDdZUFpKVHNVLWNvX3ZCbXNMdlEzUkZQU3AxYXZVOHFiNUNfUHEyNVp1LW40T1JLLXBjQm9sc3ZMc1FoTTdlUVpKZDhOTkpFeTllNWZDVGZObkNqUXNDRzllR2RyX2FLMnhNYVJVclE?oc=5",
+          "published": "Fri, 13 Nov 2026 10:18:26 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Stocks to watch, Nov 13: ABB India, ZEEL, Eicher Motors, Ola Electric, Religare Enterprises, TMPV, Vi - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxPendKcE9kVVVCR1JlVjVQbTFUaUZSTjNhbWtlYmdJSXhRaWFXa1RFOG82Ri1fWTdsVHR6UENZMm1WczNBLWlXY0RUVHpIS3IySGNXR1U3QVpUdzVrXzY0dUZINGZielBLR1BaaGtXQnBrVmF1d3hpb25xTlVtMEwxUjBaSGtXeXhTSXZ6ZWpHZjN5YUFyNmZKLUFjOUdiUFFqR1BSSk1PR2R1RzZmNXlfRmRLb0VEQkZidVdRcWZPNERqTF9tdmtzM2JkT3o0SU1rY2FTM2JESTVHNWdfTEQ0NTk4YW5VM3NWZkd3ZElMaTRMVlhG?oc=5",
+          "published": "Fri, 13 Nov 2026 02:47:22 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "Grasim Industries Q2 results: Standalone net profit up 187 per cent at Rs 2,306.2 cr - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxQdDVMY2tRMW14ejVVXzhkYmtrLUdHVGtSNnkybXpwT3hpcjg4aGp4MEF5VmZ2d2xhZEhaeEdDUm8wMFJOVmtmc2FDYVhDNmI4X3NOVzRnQVBVay1CT3plOVo3eHRMaEhkRTVmY2pjVGVIZngwNEhrU0g5Z0RzRlhZZm5Hb183VGpscGxjNEJPcGk1VExVSVhDSlJaQlR4UjRQeG56VVJUQ2FMUWd1TzJIbnp0c04zRHhhTzFXZmdQejBDTUVSdXBCSmxiU2IzZWtYQlgtNTZIMW92NzgzdjNyedIB5gFBVV95cUxNcnBJUWZGVkRESnlTM3ByOHVnMDVqR0RyWGNqRFE3WlVwVXpSeXVpN0c5SkQ1a0FZUnBtOGNmcW5ic2FTX24zdVIyb08yY0pxa3FvRm9HV2ZBUlJvem5PQ0sxX1NidnQwUFdacWNINDFDeVlQbnk3NnBSWWNDNEFDcVpWbEU0MXQ0MFh0UFZ2SldvcXFndnkyaldZS3lpZE1iazQ3RGFNUnpOYXZGYU43b0JGMXNJWjJwTVZxcDM0dWJHT0dVMWJsM3c4TTZhcHFENnJGSy1aUVZBdVdFa2U4dnZMejM0UQ?oc=5",
+          "published": "Fri, 13 Nov 2026 09:30:17 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "8620.5 - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQdkRyYmlwWWE0enh4TG5Xb19DNG92WnF0bmVseEl5TzJoeFVMNkZqZ09MUFdqa2hSRUF3QmNpWnhib0FKSlBwYnhMOTNBZXZISHluRUE1dTVyRlFLZTl2WF9lQzBPVUxGSDRqU0VzOUNqYjdoYnhzU1B6WmtlRTFWNEFwY2hqa094T2t3TTh5UQ?oc=5",
+          "published": "Fri, 13 Nov 2026 04:36:29 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
+    },
+    {
+      "symbol": "BAJAJ-AUTO",
+      "side": "Bear",
+      "score": 64.1,
+      "technical_points": 5.0,
+      "opposite_points": 1.0,
+      "price": 10823.0,
+      "volume_ratio": 2.2,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 10789.26,
+      "stop_underlying": 10815.33,
+      "target1_underlying": 10763.19,
+      "target2_underlying": 10737.12,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "5/10 directional technical points",
+        "Volume 2.20x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Indian stocks slip as oil, inflation cap weekly rally - Reuters",
+          "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOX1E4QjJWZklPblVub0xweU1jNXRDdDlBdDFpbDFlZDl1d21idHhkbnAtTkZOcGEzZ3dSRnh0dWhQOFRPQXRuQVR2QkE0RFVvbnVSM2N3MmtWZjhsa0FhSGRLTlVtZUxXeTVGQUlUWTQyTjlwNm9HT2pvek1nZ0JXWkVWd0FVdEdvMFpZbkxuU2VlcHFUbDMtNzlzc09oeVB1eVVLaE12MHE1QXh6eEFIZ3lyUlUyRks0eU8tbA?oc=5",
+          "published": "Fri, 13 Nov 2026 02:42:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Khaitan Chemicals pays ₹11,800 fine to NSE and BSE for delayed intimation - scanx.trade",
+          "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQTlVfMFpyYU5CNnZPNmRaRVRWX0REUVlycHhNQW0ydWctN1gyUUIzemxYRzlGY3NCUWdrd3pPYlZ2bjlYTXRjTW1USl95dWJWOHZvYzZ4ZTJDS2JLUXc5MDdkc0h4UkdBVkxsUlI5V3cwN2pHbnZTUWwtUFA1ZTg4ZGVINmpYV1hRc2dNQi1jNHdDZ1hLSmpudEFwMk5GSjdDYVRPYlFRSlFEaXFTX292Wk4yS0VXV1FhQlE?oc=5",
+          "published": "Fri, 13 Nov 2026 08:17:10 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Bajaj Finance Share Price - Live NSE: BAJFINANCE Stock Price & Chart - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9uWDYwYU9rV1lTNktHU2ZCaFBmU3p2OWIxTjZJNWZ3dVpZU0F3bG1wTVQ1QzFta3RNbGlKam1rV3NPd0ZsUDVGMm9mX2JVZkUyZWRwckVSRWxTNmFzbzFJak5BRDY1VU1qblFtSQ?oc=5",
+          "published": "Thu, 12 Nov 2026 18:14:14 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "- Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQVnpnRzd6SWtHXzM2YVNHQlh1V0ZGVmVqU2dmbWxac0FZcVBXNjRtempRTENzUFN2RHNmazVQa2lqcWVUaUphdUpKUm9QU0puQWZnRThGVzVwMVRfVWI3ODN1MEJsRFcxZkpLNTlPT0QyYmdzWDNONWxEeDhvdTJXUVNRVnVub3gzWjdya0dyZw?oc=5",
+          "published": "Wed, 11 Nov 2026 09:06:35 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "8620.5 - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQdkRyYmlwWWE0enh4TG5Xb19DNG92WnF0bmVseEl5TzJoeFVMNkZqZ09MUFdqa2hSRUF3QmNpWnhib0FKSlBwYnhMOTNBZXZISHluRUE1dTVyRlFLZTl2WF9lQzBPVUxGSDRqU0VzOUNqYjdoYnhzU1B6WmtlRTFWNEFwY2hqa094T2t3TTh5UQ?oc=5",
+          "published": "Fri, 13 Nov 2026 04:36:29 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     },
     {
       "symbol": "TRENT",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "DIXON",
-      "reason": "'High'"
-    },
-    {
-      "symbol": "PERSISTENT",
-      "reason": "'High'"
+      "side": "Bear",
+      "score": 60.9,
+      "technical_points": 5.0,
+      "opposite_points": 1.0,
+      "price": 3159.9,
+      "volume_ratio": 1.6,
+      "candle_ist": "2026-11-13T15:10:00+05:30",
+      "source": "Dhan historical 5m",
+      "entry_trigger_underlying": 3142.69,
+      "stop_underlying": 3151.85,
+      "target1_underlying": 3133.53,
+      "target2_underlying": 3124.38,
+      "level_basis": "Previous completed session high/low and ATR; indicative underlying levels, not option premiums",
+      "advantages": [
+        "5/10 directional technical points",
+        "Volume 1.60x baseline"
+      ],
+      "disadvantages": [
+        "Next-session direction is uncertain",
+        "Option expiry, strike, premium and liquidity not verified"
+      ],
+      "entry_rule": "Next-session completed 5m close beyond entry trigger with volume and directional confirmation; otherwise WAIT",
+      "strike": "Not verified",
+      "news": [
+        {
+          "title": "Trent Share Price - Upstox",
+          "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1rMko0cG80WFpzNFh4clB2SXR6Zzh0QVpxdGlVdnh1QXo3aG9EVjh2d1EzUW1YZldSWDZCeGtySXZ1ZmJrbnNyZV9Gb2RtbzFtYWhKalVrRWpOMWJf?oc=5",
+          "published": "Fri, 13 Nov 2026 11:02:10 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Trent NSE:TRENT Reminder to Dematerialise Physical Shares - Kalkine India",
+          "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPaFRpV0NDbndyZWR1ek1ibDBfcEdvdzM1akFqMzY4OFhmM1pSa21XM3FKeVMyaEpYVW1Tc2VBQTIwdE5GRXdwMTRlQWVEN0RZSEx2RWxhbFdJSTlRNUh4ZjlqUzhTSHM1V1dxV0lVNWdObHA4cXctSlNMYUtESXlGcVJPdktXX2NUc0thUGlZd2doeXlnMlpxQ0EydkNDQVdhR0JGT3RZSE5qdnpWVk9EZlhKRWFoS2lqcUE?oc=5",
+          "published": "Fri, 13 Nov 2026 05:54:00 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "Trent Limited (TRENT.NS) stock price, news, quote and history - Yahoo Finance UK",
+          "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE8tVlBRbklVNjRCOHNLUGhPSTdSTTVhUE9QeXNsZS0taGZVeHN0SkV6LXRkbGRlY3dVN3ZLaC15SXQyRXUzOXhPcWdWa2NRY0oyMGo3ckpJdw?oc=5",
+          "published": "Thu, 12 Nov 2026 11:23:19 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "moneycontrol_news": [
+        {
+          "title": "- Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQVnpnRzd6SWtHXzM2YVNHQlh1V0ZGVmVqU2dmbWxac0FZcVBXNjRtempRTENzUFN2RHNmazVQa2lqcWVUaUphdUpKUm9QU0puQWZnRThGVzVwMVRfVWI3ODN1MEJsRFcxZkpLNTlPT0QyYmdzWDNONWxEeDhvdTJXUVNRVnVub3gzWjdya0dyZw?oc=5",
+          "published": "Wed, 11 Nov 2026 09:06:35 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        },
+        {
+          "title": "8620.5 - Moneycontrol.com",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQdkRyYmlwWWE0enh4TG5Xb19DNG92WnF0bmVseEl5TzJoeFVMNkZqZ09MUFdqa2hSRUF3QmNpWnhib0FKSlBwYnhMOTNBZXZISHluRUE1dTVyRlFLZTl2WF9lQzBPVUxGSDRqU0VzOUNqYjdoYnhzU1B6WmtlRTFWNEFwY2hqa094T2t3TTh5UQ?oc=5",
+          "published": "Fri, 13 Nov 2026 04:36:29 GMT",
+          "discovery": "Google News RSS; article not independently verified"
+        }
+      ],
+      "news_risk": "Headlines unverified; review articles and exchange filings"
     }
   ],
+  "scanned": 47,
+  "validated": 47,
+  "eligible": 27,
+  "errors": [],
   "warnings": [
     "No guarantee of next-day movement",
-    "FII/DII numbers are market-wide, not stock-wise",
+    "FII/DII data are market-wide, not stock-wise",
     "Google News and Moneycontrol headlines are discovery links, not verified sentiment",
-    "Actual F&O membership, expiry, strikes and premiums must be independently verified",
-    "No qualifying candidates: no-trade watchlist"
+    "Actual F&O membership, expiry, strikes and option premiums must be independently verified"
   ]
 }
