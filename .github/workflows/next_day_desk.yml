@@ -44,7 +44,9 @@ jobs:
           d = json.loads(p.read_text(encoding='utf-8'))
           if not isinstance(d, dict) or not isinstance(d.get('scanned'), int) or d['scanned'] <= 0:
               raise SystemExit('Invalid snapshot: missing or zero scanned count')
-          print('Snapshot validated: scanned', d['scanned'], 'eligible', d.get('eligible'))
+          if not isinstance(d.get('errors'), list): raise SystemExit('Snapshot diagnostics missing')
+          if d['scanned'] < 50: raise SystemExit('Universe too small: inspect Dhan master mapping')
+          print('Snapshot validated: scanned', d['scanned'], 'eligible', d.get('eligible'), 'errors', len(d['errors']))
           PY
       - name: Commit snapshot with safe push retry
         shell: bash
