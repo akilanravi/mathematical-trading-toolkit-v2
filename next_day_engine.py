@@ -109,7 +109,8 @@ def build():
     if not client_id or not token:
         raise RuntimeError('Dhan credentials missing; previous snapshot preserved')
 
-    symbols = [s for s in dhan_feed.DHAN_SECURITY_MAP if s not in INDICES]
+    universe = dhan_feed.load_fo_universe()
+    symbols = sorted(s for s in universe if s not in INDICES)
     if not symbols:
         raise RuntimeError('No verified Dhan F&O stock mappings; previous snapshot preserved')
 
@@ -130,9 +131,7 @@ def build():
 
             # The existing toolkit may require Title Case OHLCV names. Supply both
             # spellings to preserve compatibility without changing other modules.
-            analysis_df = df.copy()
-            for col in ('open', 'high', 'low', 'close', 'volume'):
-                analysis_df[col.capitalize()] = df[col]
+            analysis_df = df.copy()  # mtt_v2.normalize_ohlcv expects lowercase OHLCV
             analysis = m.analyse(sym, '5m', 'next', m.Config(), df=analysis_df)
             if not isinstance(analysis, dict):
                 raise ValueError('analysis did not return a dictionary')
@@ -229,7 +228,7 @@ def build():
         'method': 'Dhan-only technical ranking; news context unscored',
         'fii_dii': institutional(),
         'market_news': headlines('NSE India stock market FII DII outlook when:2d', 5),
-        'bull': bull, 'bear': bear, 'scanned': len(symbols),
+        'bull': bull, 'bear': bear, 'scanned': len(symbols), 'universe_size': len(universe),
         'validated': validated, 'eligible': len(set(r['symbol'] for r in rows)),
         'errors': errors,
         'warnings': [
