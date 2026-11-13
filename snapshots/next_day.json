@@ -1,0 +1,179 @@
+{
+  "generated_ist": "2026-11-13T17:40:16.993430+05:30",
+  "session_date": "2026-11-13",
+  "status": "research_only",
+  "method": "Dhan-only technical ranking; news context unscored",
+  "fii_dii": {
+    "source": "NSE aggregate cash market (not stock-specific)",
+    "rows": [
+      {
+        "buyValue": "15855.13",
+        "category": "DII",
+        "date": "12-Nov-2026",
+        "netValue": "-6331.17",
+        "sellValue": "22186.3"
+      },
+      {
+        "buyValue": "20273.32",
+        "category": "FII/FPI",
+        "date": "12-Nov-2026",
+        "netValue": "7830.6",
+        "sellValue": "12442.72"
+      }
+    ],
+    "verified": true
+  },
+  "market_news": [
+    {
+      "title": "Promoter holding at 3-year high, FII ownership at 14-year low: Did insiders buy what FIIs sold? - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxNcDdXdGI2UEFGYkJqbkViU09Bc3Z1NkJiT2hIeEs3OEJJR2dHcks5MXFBMllKZVI1M0s0bEpEMFB4YWlmR2VIa0tuQzVYUnFQc2lWOVptSkE2ZjRNU1Nacm5mcHk2dUIzWnl4VVNxTlFIclJFYTRSSXh0Q0VDZVB4c2I0bzA5ajcxNFlnSDRGUDFESjNhM1VQU3A5TzZUaldjNXFXYmdzT0tCLUhqdWw0OEtOZG5UdF85T2dvUVIzMktoMDRwbDhBa2pHLVFBSU51WTRUQkcwSkpOSGpQMFNka09Qaw?oc=5",
+      "published": "Fri, 13 Nov 2026 11:23:15 GMT",
+      "discovery": "Google News RSS; article not independently verified"
+    },
+    {
+      "title": "Can sharp fall in crude oil prices brighten the outlook for paint stocks? Here’s what charts say - Upstox",
+      "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxOSnFVY3JNNjBHQVZScHQyZG9iSDVwVnk5SDNWOEpXYXpwMTFQblYwZzlJTmJYTEZWbnVfdUttemxLZ2hvb2xvZGhSNFBzNFN5cml5Q2lrM1dIaEJQWVNkVEhrdFBHNU1iMFQzTmJ3TDZTbUFuS2k4WE9UZHprWlNyeVZGcEdLbUQ1MW9QbDZwUzhhOWllQXFPTkVzTUo4UWl6MVc5LW9KeEtsSi1TSGgxQnRyTGZ2XzdVcE9yMVRxWEhXeXdWY2IxWHVuMGJNd2VqRXFsQXpzc3NUVFpTcW9wN0NjSlRpeVJJR3BlWHlQREM?oc=5",
+      "published": "Thu, 12 Nov 2026 08:38:28 GMT",
+      "discovery": "Google News RSS; article not independently verified"
+    },
+    {
+      "title": "Stock market cues to watch today: Nvidia's Jensen Huang ouster, GIFT Nifty, FII, CPI, and other data - ET Now",
+      "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPSVQ5RmZlZzlxSVh3enJfUGtLd2hHRUl4TzFpT1pMZDFXWlY3MjNmcnlRRGxnRXdDVnFYZXA4bFhlaFR2MXlLNk9EWkN6MTNuX1R3UlR4bFU0b1huazNsWE0wd3I1X1h4dzdTZ2hzbVRnckVtWTJGNG9GR1FSYkxDbklfMzhWN3JzaGRyMXVsamNCUU5NUUxtNWZCaGtiSW1PZ0tDcDMwZ0piUkdCamM1enVHZl84QWdqNjRsNHNDNHJ4d3hNMHJjWVc2ZDhuSVpXU3B5M0FFM0JxMG5DdmFDdDBERWpDYjBs0gHuAUFVX3lxTE5wVEx4aU41WVVQdmV3bnZmZHgzNklBOVF5RHgzYVRyYURFamNWZ1ZLNUhtZWxyQURJNW12OGpxRkktdnVZcTRNOHh5Z1FGOE1BN0ZsS3dHYTJvVl9lSFhHM2V4VExwTlUwNDhMQ256ai1XZEh1Q3BpQkc3MVJOX0RobndXVC1JdE5XN29ULV83cnBkcHQzM05zVXhhc2xrUVUzMEw0TGo3ZW1icGNqcW9sVk1zQThvbUpiUC05Y2hwLWU2VlJURmRibjJYSG12WFdZQjV3dHIxTHBXNXJ0R0dOUEhwVzNfNk01cWhrVkE?oc=5",
+      "published": "Fri, 13 Nov 2026 01:01:24 GMT",
+      "discovery": "Google News RSS; article not independently verified"
+    },
+    {
+      "title": "Indian Stock Markets Open Marginally Lower Amid FII DII Tug of War - Asianet Newsable",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxNR3dJcjIxR3h1bnIyOHJYc2k4ZTJZMm1UbGZyUVZtdHpGM3ZzbEdYNVJ5Qm9DSkNxclpsM18xdjRFREdhbG9qMzJEa3FfX3FLbzdwT2hSWmlyNy1FNFpXVU1MRHd5QS1Fc0JXeVdDbHpfRFNsZndSYW9sRkhnRGFWM3JUajY1Yl90bDdLOVN4Y0VoWlYxUVZrZEdub2RfWEk1dWVrQ2x5bXBiSFFwNHhPZ3pndnZGSXh2SEFlWWVLNGwtOUxuTVB30gHMAUFVX3lxTE04ZGpNNFJGRWZaZ2hETTlway1KNE8zWDBtdGJqX2pMMDBQUzh0TmlBcmJKSE9PVkVSbDNhbVY4YU5FT0k2blJzendIeW1TbzVNNURtWjFwRzZpYWlBaVo3a0dHcGFRT0dfTlZvZl8yRUtMUzNTWGVZblJZLUhJN20yNEVPY3NFaTlxajJ4YXBWWlZiQlBsVU52VTI3UnM5QUFaT0FmclpiTUozYU83blNwT3JZYmZ0ZS12VkJCVjl6dURONVJwNFJ3WWpXbg?oc=5",
+      "published": "Thu, 12 Nov 2026 04:10:47 GMT",
+      "discovery": "Google News RSS; article not independently verified"
+    },
+    {
+      "title": "D-St set for a cautious opening as GIFT Nifty signals muted start - The Economic Times",
+      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNSGpzR1F0SGFxTDhpLU9Zb3p2TTR0VlNjU2FSRDJfWE9wUVVjYlo1ckg2Z3RZaTdWTkc0dG5ISzF2WVJoak9obmdvU3p4QktOcVRsdWdoWmV3NkNuSnRKQ2k1ejlSU2VmMWsxNk02Zi12R1htSEt1RmJVZTF0MWE4YUYtRWlEcDY4Z2huZkU1Y2JkUExyMVBIRjQ0clZBMHJWZkVabDIyc0lLSExOcElYejJvMEE4STN1cTZ5bmVHZ202OTlxT2xYdEYydk3SAdIBQVVfeXFMTWZuNUtQUHZnbUpfUk9YVHNHVDR3aHBLNnN1SmJ6S0FULWZCZURIT29XMkR3a3FXa3pRTGd5c1B6U2xyVDR1SlctWHQwLUZpVUIxYWNqRkhNcHBxUHhqZW1EM3J4R3NaRF92YnNYM19DOF80RW50MmhGYUFSc0dqNThLaFM2MkJGWVM0LTlzRGRRMUNvR1VXRk5tTHJhLWtxbUZsajVEUVVYUFNvOFFkdnI2WGpvYkgzV2xQaTZ5VlZxUF9jSmU1Mi1RZEdUc0duWU9R?oc=5",
+      "published": "Thu, 12 Nov 2026 00:30:00 GMT",
+      "discovery": "Google News RSS; article not independently verified"
+    }
+  ],
+  "bull": [],
+  "bear": [],
+  "scanned": 47,
+  "eligible": 0,
+  "errors": [
+    {
+      "symbol": "RELIANCE",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "HDFCBANK",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "INFY",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "BHARTIARTL",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "ITC",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "LT",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "KOTAKBANK",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "TATAMOTORS",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "MARUTI",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "TITAN",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "COALINDIA",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "HINDALCO",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "JSWSTEEL",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "BAJAJ-AUTO",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "HEROMOTOCO",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "DIVISLAB",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "CIPLA",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "APOLLOHOSP",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "GRASIM",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "HAL",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "NTPC",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "BPCL",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "CANBK",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "SHRIRAMFIN",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "TRENT",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "DIXON",
+      "reason": "'High'"
+    },
+    {
+      "symbol": "PERSISTENT",
+      "reason": "'High'"
+    }
+  ],
+  "warnings": [
+    "No guarantee of next-day movement",
+    "FII/DII numbers are market-wide, not stock-wise",
+    "Google News and Moneycontrol headlines are discovery links, not verified sentiment",
+    "Actual F&O membership, expiry, strikes and premiums must be independently verified",
+    "No qualifying candidates: no-trade watchlist"
+  ]
+}
