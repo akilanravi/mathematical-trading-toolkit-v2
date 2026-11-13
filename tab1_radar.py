@@ -1,158 +1,364 @@
-"""Isolated Tab 1 radar. Does not call or modify other tab engines."""
-import io
+"""Tab 1 Live F&O Radar. Uses Dhan candles and the existing MTT scoring engine."""
+
 import re
-import time
-import requests
+
 import numpy as np
 import pandas as pd
 import streamlit as st
+
+import dhan_feed
 import mtt_v2 as m
 
-IST='Asia/Kolkata'
-MASTER='https://images.dhan.co/api-data/api-scrip-master-detailed.csv'
-INDEX_NAMES={'NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY','NIFTYNXT50','SENSEX'}
+
+IST = "Asia/Kolkata"
+BAR = pd.Timedelta(minutes=5)
+OHLCV = ("open", "high", "low", "close", "volume")
+INDEX_NAMES = {
+    "NIFTY", "NIFTY50", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY",
+    "NIFTYNXT50", "SENSEX", "BANKEX", "INDIAVIX",
+}
+ALL_STOCKS = "All mapped F&O stocks"
+SAMPLE = "50-stock diagnostic sample (alphabetical)"
 
 
 def _column(frame, *names):
-    lookup={re.sub('[^a-z0-9]','',str(k).lower()):k for k in frame.columns}
-    return next((lookup[re.sub('[^a-z0-9]','',n.lower())] for n in names if re.sub('[^a-z0-9]','',n.lower()) in lookup),None)
+    def key(value):
+        return re.sub(r"[^a-z0-9]", "", str(value).lower())
+
+    columns = {key(column): column for column in frame.columns}
+    return next((columns[key(name)] for name in names if key(name) in columns), None)
 
 
-def parse_master(frame, allowed):
-    """Match current F&O symbols against NSE cash-equity IDs, not derivative IDs."""
-    sid=_column(frame,'SEM_SMST_SECURITY_ID','SECURITY_ID','SECURITYID')
-    symbol=_column(frame,'SEM_TRADING_SYMBOL','TRADING_SYMBOL','SYMBOL')
-    segment=_column(frame,'SEM_SEGMENT','SEGMENT')
-    exchange=_column(frame,'SEM_EXM_EXCH_ID','EXCHANGE','EXCH_ID')
-    inst=_column(frame,'SEM_INSTRUMENT_NAME','INSTRUMENT','INSTRUMENT_TYPE')
-    if not sid or not symbol:
-        raise ValueError('Master lacks security ID or trading symbol; columns: '+str(list(frame.columns)[:20]))
-    out={}
-    for _,r in frame.iterrows():
-        s=str(r[symbol]).strip().upper()
-        # Some Dhan masters contain RELIANCE-EQ as trading symbol.
-        if s.endswith('-EQ') and s[:-3] in allowed:s=s[:-3]
-        if s not in allowed:continue
-        seg=str(r[segment]).strip().upper() if segment else ''
-        ex=str(r[exchange]).strip().upper() if exchange else ''
-        typ=str(r[inst]).strip().upper() if inst else ''
-        if segment and seg not in ('E','EQ','EQUITY','NSE_EQ'):continue
-        if exchange and ex not in ('NSE','NSE_EQ'):continue
-        if inst and typ not in ('EQUITY','EQ','E'):continue
-        raw=str(r[sid]).strip()
-        if not re.fullmatch(r'\d+(?:\.0+)?',raw):continue
-        identifier=str(int(float(raw)))
-        if s in out and out[s][1]!=identifier:
-            out.pop(s,None)
-            continue
-        out[s]=('NSE_EQ',identifier,'EQUITY')
-    return out
+def _text(series):
+    return series.fillna("").astype(str).str.strip().str.upper()
 
 
-@st.cache_data(ttl=3600,show_spinner=False)
-def discover(allowed_symbols):
-    import dhan_feed
-    allowed=set(allowed_symbols)-INDEX_NAMES
+def _symbol(value):
+    return str(value).strip().upper().removesuffix(".NS").removesuffix("-EQ")
+
+
+def _security_id(value):
+    value = str(value).strip()
+    if not re.fullmatch(r"\d+(?:\.0+)?", value):
+        return None
+    number = int(value.split(".", 1)[0])
+    return str(number) if number > 0 else None
+
+
+def _master_maps(frame, today):
+    """Extract NSE cash IDs and stock-futures membership from the Dhan master."""
+    id_col = _column(frame, "SEM_SMST_SECURITY_ID", "SECURITY_ID")
+    trading_col = _column(
+        frame, "SEM_TRADING_SYMBOL", "TRADING_SYMBOL", "SYMBOL_NAME", "SYMBOL"
+    )
+    exchange_col = _column(frame, "SEM_EXM_EXCH_ID", "EXCH_ID", "EXCHANGE")
+    segment_col = _column(frame, "SEM_SEGMENT", "SEGMENT", "EXCHANGE_SEGMENT")
+    type_col = _column(frame, "SEM_INSTRUMENT_NAME", "INSTRUMENT", "INSTRUMENT_TYPE")
+    series_col = _column(frame, "SEM_SERIES", "SERIES")
+    expiry_col = _column(frame, "SEM_EXPIRY_DATE", "SM_EXPIRY_DATE", "EXPIRY_DATE")
+    underlying_col = _column(
+        frame, "UNDERLYING_SYMBOL", "SEM_UNDERLYING_SYMBOL", "SM_SYMBOL_NAME"
+    )
+    underlying_id_col = _column(
+        frame, "UNDERLYING_SECURITY_ID", "SEM_UNDERLYING_SECURITY_ID"
+    )
+
+    if any(col is None for col in (id_col, trading_col, exchange_col, type_col)):
+        raise ValueError(f"Unrecognized Dhan master columns: {list(frame.columns)[:20]}")
+
+    exchange = _text(frame[exchange_col])
+    kind = _text(frame[type_col])
+    cash_mask = exchange.isin(["NSE", "NSE_EQ"]) & kind.isin(["EQUITY", "EQ"])
+    futures_mask = exchange.isin(["NSE", "NSE_FNO"]) & kind.eq("FUTSTK")
+
+    if segment_col is not None:
+        segment = _text(frame[segment_col])
+        cash_mask &= segment.isin(["E", "EQ", "EQUITY", "NSE_EQ"])
+        futures_mask &= segment.isin(["D", "FNO", "NSE_FNO", "DERIVATIVE", "DERIVATIVES"])
+
+    if series_col is not None:
+        cash_mask &= _text(frame[series_col]).isin(["", "EQ"])
+
+    cash_candidates = {}
+    for name, raw_id in frame.loc[cash_mask, [trading_col, id_col]].itertuples(
+        index=False, name=None
+    ):
+        name, sid = _symbol(name), _security_id(raw_id)
+        if sid and name not in INDEX_NAMES and re.fullmatch(r"[A-Z0-9][A-Z0-9&_.-]*", name):
+            cash_candidates.setdefault(name, set()).add(sid)
+
+    # Never select an arbitrary ID if several different IDs match the same symbol.
+    cash = {name: next(iter(ids)) for name, ids in cash_candidates.items() if len(ids) == 1}
+    names_by_id = {}
+    for name, sid in cash.items():
+        names_by_id.setdefault(sid, set()).add(name)
+
+    futures = frame.loc[futures_mask]
+    if expiry_col is not None:
+        expiry = pd.to_datetime(
+            futures[expiry_col], format="mixed", errors="coerce"
+        )
+        futures = futures.loc[expiry.notna() & (expiry.dt.date >= today)]
+
+    stock_names = set()
+    for _, row in futures.iterrows():
+        if underlying_id_col is not None:
+            sid = _security_id(row[underlying_id_col])
+            if sid:
+                matches = names_by_id.get(sid, set())
+                if len(matches) == 1:
+                    stock_names.update(matches)
+                continue
+
+        if underlying_col is not None:
+            name = _symbol(row[underlying_col])
+            if name in cash:
+                stock_names.add(name)
+                continue
+
+        contract = str(row[trading_col]).strip().upper()
+        # Preserve hyphenated stock names such as BAJAJ-AUTO.
+        name = re.split(r"-(?=\d{1,2}[A-Z]{3})|\s", contract, maxsplit=1)[0]
+        if name in cash:
+            stock_names.add(name)
+
+    return cash, stock_names
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def discover():
+    master = dhan_feed._master()
+    today = pd.Timestamp.now(tz=IST).date()
+    cash, dhan_names = _master_maps(master, today)
+
     try:
-        nse=dhan_feed._nse_fo_symbols()
-    except Exception as exc:
-        raise RuntimeError(f'NSE current F&O list unavailable: {exc}') from exc
-    if not nse:
-        raise RuntimeError('NSE current F&O market-lot list unavailable. Refusing to label static names as verified.')
-    allowed=set(nse) # Discover full exchange universe, not just old UI list
-    try:
-        master=dhan_feed._master()
-    except Exception as exc:
-        raise RuntimeError(f'Dhan instrument master download failed: {exc}') from exc
-    mapping=parse_master(master,allowed)
-    if not mapping:
-        raise RuntimeError('No matching NSE cash IDs in Dhan master. Fields: '+str(list(master.columns)[:15]))
-    return mapping, len(allowed)
+        nse_names = {_symbol(name) for name in (dhan_feed._nse_fo_symbols() or ())}
+        nse_names -= INDEX_NAMES
+    except Exception:
+        nse_names = set()
+
+    nse_matches = nse_names & cash.keys()
+    if nse_matches and len(nse_matches) >= len(dhan_names):
+        names = nse_matches
+        source = "NSE market-lot list + Dhan cash IDs"
+        membership_count = len(nse_names)
+    elif dhan_names:
+        names = dhan_names
+        source = "Dhan stock-futures master + Dhan cash IDs"
+        membership_count = None
+    else:
+        raise RuntimeError(
+            "No F&O stocks could be mapped to NSE cash IDs. "
+            f"NSE symbols received: {len(nse_names)}. "
+            f"Unambiguous NSE cash IDs in Dhan master: {len(cash)}."
+        )
+
+    return {name: cash[name] for name in sorted(names)}, source, membership_count
 
 
-def normalize_candles(obj):
-    if not isinstance(obj,dict):raise ValueError('Non-object Dhan candle response')
-    cols=['open','high','low','close','volume']
-    stamp=obj.get('timestamp',obj.get('start_Time'))
-    if stamp is None or any(obj.get(c) is None for c in cols):
-        raise ValueError('Missing OHLCV/timestamp fields: '+str(list(obj)[:15]))
-    sizes=[len(stamp)]+[len(obj[c]) for c in cols]
-    if len(set(sizes))!=1 or sizes[0]<70:raise ValueError(f'Insufficient/mismatched candle arrays: {sizes}')
-    index=pd.to_datetime(stamp,unit='s',utc=True).tz_convert(IST)
-    # Use positional arrays: Series + timezone index would align by labels to NaN.
-    df=pd.DataFrame({c:pd.to_numeric(pd.Series(obj[c]),errors='coerce').to_numpy() for c in cols},index=index)
-    df=df.dropna().loc[lambda d:~d.index.duplicated(keep='last')].sort_index()
-    df=df[(df.high>=df.low)&(df.low>0)&(df.close>0)&(df.open>0)&(df.volume>=0)]
-    if len(df)<70:raise ValueError('Insufficient valid OHLCV candles')
-    return df
+def normalize_candles(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("Dhan candle response is not a JSON object")
+
+    timestamps = payload.get("timestamp")
+    if timestamps is None:
+        timestamps = payload.get("start_Time")
+
+    if not isinstance(timestamps, list) or any(
+        not isinstance(payload.get(col), list) for col in OHLCV
+    ):
+        raise ValueError("Dhan response is missing timestamp or OHLCV arrays")
+
+    sizes = {len(timestamps), *(len(payload[col]) for col in OHLCV)}
+    if len(sizes) != 1 or len(timestamps) < 70:
+        raise ValueError("Dhan returned insufficient candles or mismatched array lengths")
+
+    index = pd.to_datetime(timestamps, unit="s", utc=True, errors="coerce").tz_convert(IST)
+    frame = pd.DataFrame(
+        {
+            col: pd.to_numeric(pd.Series(payload[col]), errors="coerce").to_numpy()
+            for col in OHLCV
+        },
+        index=index,
+    )
+    frame = frame.loc[~frame.index.isna()]
+    frame = frame.replace([np.inf, -np.inf], np.nan).dropna()
+    frame = frame.loc[~frame.index.duplicated(keep="last")].sort_index()
+    frame = frame.loc[
+        (frame["low"] > 0)
+        & (frame["high"] >= frame[["open", "close"]].max(axis=1))
+        & (frame["low"] <= frame[["open", "close"]].min(axis=1))
+        & (frame["volume"] >= 0)
+    ]
+    return frame
 
 
-@st.cache_data(ttl=300,show_spinner=False)
-def candles(symbol,sid):
-    import dhan_feed
-    now=pd.Timestamp.now(tz=IST)
-    obj=dhan_feed._request('/charts/intraday',{'securityId':sid,'exchangeSegment':'NSE_EQ','instrument':'EQUITY','interval':'5','oi':False,'fromDate':(now-pd.Timedelta(days=12)).strftime('%Y-%m-%d'),'toDate':now.strftime('%Y-%m-%d')},timeout=20)
-    return normalize_candles(obj)
+@st.cache_data(ttl=300, show_spinner=False)
+def candles(symbol, sid):
+    now = pd.Timestamp.now(tz=IST)
+    payload = dhan_feed._request(
+        "/charts/intraday",
+        {
+            "securityId": sid,
+            "exchangeSegment": "NSE_EQ",
+            "instrument": "EQUITY",
+            "interval": "5",
+            "oi": False,
+            "fromDate": (now - pd.Timedelta(days=12)).strftime("%Y-%m-%d %H:%M:%S"),
+            "toDate": now.strftime("%Y-%m-%d %H:%M:%S"),
+        },
+        timeout=15,
+    )
+    frame = normalize_candles(payload)
+    frame = frame.loc[frame.index + BAR <= pd.Timestamp.now(tz=IST)]
+    if len(frame) < 70:
+        raise ValueError(f"{symbol}: fewer than 70 valid completed candles")
+    return frame
 
 
-def rank_one(sym,df):
-    # mtt_v2 uses lowercase OHLCV and requires a tz-aware datetime index.
-    result=m.analyse(sym,'5m','next',m.Config(),df=df,vix_val=0.14)
-    sc=result['score']; mx=float(sc['max'])
-    if mx<=0:raise ValueError('Invalid technical denominator')
-    row=result['features'].iloc[-1]
-    vol=float(row['volr']) if pd.notna(row['volr']) else 0
-    atr=float(result['atr']);price=float(result['price'])
-    if not all(np.isfinite(x) for x in (vol,atr,price)) or atr<=0 or price<=0:
-        raise ValueError('Invalid indicator values')
-    if abs(price-float(row['ema21']))>1.5*atr:return None
-    bull=int(sc['bull']);bear=int(sc['bear'])
-    if vol<0.8 or max(bull,bear)<5 or bull==bear:return None
-    direction='CE' if bull>bear else 'PE'
-    pts=max(bull,bear)
-    score=round(70*pts/mx+15*min(vol/1.5,1)+15*max(0,1-abs(price-float(row['ema21']))/(1.5*atr)),1)
-    return {'Symbol':sym,'Direction':direction,'Close ₹':round(price,2),'Score':score,'Bull':bull,'Bear':bear,'Max':int(mx),'Volume ×':round(vol,2),'Candle IST':str(df.index[-1]),'Source':'Dhan 5m'}
+def rank_one(symbol, frame):
+    result = m.analyse(symbol, "5m", "live", m.Config(), df=frame, vix_val=0.14)
+    scores = result["score"]
+    last = result["features"].iloc[-1]
+    maximum = float(scores["max"])
+    bull, bear = int(scores["bull"]), int(scores["bear"])
+    volume = float(last["volr"])
+    atr, price, ema21 = float(result["atr"]), float(result["price"]), float(last["ema21"])
+
+    if (
+        not all(np.isfinite(x) for x in (maximum, volume, atr, price, ema21))
+        or maximum <= 0
+        or atr <= 0
+        or price <= 0
+        or not (0 <= bull <= maximum and 0 <= bear <= maximum)
+    ):
+        raise ValueError("Invalid technical inputs")
+
+    distance = abs(price - ema21)
+    points = max(bull, bear)
+    if distance > 1.5 * atr or volume < 0.8 or points < 5 or bull == bear:
+        return None
+
+    score = (
+        70 * points / maximum
+        + 15 * min(volume / 1.5, 1)
+        + 15 * max(0, 1 - distance / (1.5 * atr))
+    )
+    direction = "CE" if bull > bear else "PE"
+    row = {
+        "Symbol": symbol,
+        "Direction": direction,
+        "Close ₹": round(price, 2),
+        "Score": round(score, 1),
+        "Bull": bull,
+        "Bear": bear,
+        "Max": int(maximum),
+        "Volume ×": round(volume, 2),
+        "Candle IST": pd.Timestamp(result["time"]).strftime("%Y-%m-%d %H:%M"),
+        "Source": "Dhan 5m",
+    }
+    for name, _, bull_points, bear_points, available, _ in scores.get("comps", []):
+        points_for_side = bull_points if direction == "CE" else bear_points
+        row[name] = "➖" if not available else ("✅" if points_for_side > 0 else "❌")
+    return row
 
 
-def scan(mapping,limit):
-    results=[];errors=[];valid=0
-    for sym in list(sorted(mapping))[:limit]:
+def _error_message(exc):
+    message = str(exc)
+    client_id, token = dhan_feed.get_dhan_credentials()
+    for secret in (client_id, token):
+        if secret:
+            message = message.replace(secret, "[redacted]")
+    return message[:240]
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def scan(mapping, limit):
+    rows, errors = [], []
+    valid = 0
+    selected = list(mapping.items())[:limit]
+    for symbol, sid in selected:
         try:
-            df=candles(sym,mapping[sym][1]);valid+=1
-            r=rank_one(sym,df)
-            if r:results.append(r)
+            frame = candles(symbol, sid)
+            row = rank_one(symbol, frame)
+            valid += 1
+            if row is not None:
+                rows.append(row)
         except Exception as exc:
-            errors.append({'Symbol':sym,'Reason':str(exc)[:180]})
-    return results,errors,valid
+            message = _error_message(exc)
+            errors.append({"Symbol": symbol, "Reason": message})
+            if re.search(r"\b(?:401|403|429|805)\b|DH-90[124]", message, re.I):
+                break
+
+    if rows:
+        latest = max(pd.Timestamp(row["Candle IST"]) for row in rows)
+        rows = [
+            row for row in rows
+            if pd.Timestamp(row["Candle IST"]).date() == latest.date()
+            and latest - pd.Timestamp(row["Candle IST"]) <= pd.Timedelta(minutes=10)
+        ]
+    return rows, errors, valid
 
 
-@st.fragment(run_every='60s')
+@st.fragment(run_every="60s")
 def render():
-    st.subheader('🎯 Live F&O Radar | Tab 1')
-    st.caption('Dhan historical 5-minute candles; refreshes at most every 5 minutes. Not tick-by-tick live and not an order signal.')
-    selection=st.selectbox('Universe',['Top 50 (alphabetical sample; not liquidity-ranked)','All verified F&O stocks'],key='tab1_universe')
-    if st.button('Refresh Tab 1',key='tab1_refresh'):
-        discover.clear();candles.clear()
-    try:
-        with st.spinner('Loading NSE F&O membership and Dhan cash security IDs...'):
-            mapping,nse_count=discover(tuple())
-    except Exception as exc:
-        st.error('Universe discovery failed: '+str(exc))
-        st.info('Other tabs are unchanged. No unsupported IDs or fabricated results are used.')
+    st.subheader("🎯 Live F&O Radar")
+    st.caption(
+        "Tab 1 · Dhan universe fallback enabled · Completed 5-minute candles only. "
+        "Prices are candle closes, not live option quotes."
+    )
+    selection = st.selectbox("Universe", [ALL_STOCKS, SAMPLE], key="tab1_universe")
+
+    if st.button("Refresh Tab 1", key="tab1_refresh"):
+        discover.clear()
+        candles.clear()
+        scan.clear()
+
+    client_id, token = dhan_feed.get_dhan_credentials()
+    if not client_id or not token:
+        st.warning("Dhan client ID or access token is missing from Streamlit Secrets.")
         return
-    count=min(50,len(mapping)) if selection.startswith('Top 50') else len(mapping)
-    st.info(f'NSE F&O symbols: {nse_count} · Verified Dhan cash IDs: {len(mapping)} · Selected for scan: {count}')
-    if selection.startswith('All'):
-        st.warning('Full-universe scanning may take several minutes and consume Dhan API requests. Use Top 50 to diagnose first.')
-    with st.spinner(f'Checking {count} stocks using Dhan candles...'):
-        rows,errors,valid=scan(mapping,count)
-    st.caption(f'Valid candle responses: {valid}/{count} · Errors: {len(errors)} · Ranked setups: {len(rows)}')
-    for side,title in [('CE','🟢 Bullish CE candidates'),('PE','🔴 Bearish PE candidates')]:
-        subset=sorted((r for r in rows if r['Direction']==side),key=lambda x:-x['Score'])[:10]
-        st.markdown('### '+title)
-        if subset:st.dataframe(pd.DataFrame(subset),hide_index=True,use_container_width=True)
-        else:st.info('No qualifying candidates; do not force trades.')
-    with st.expander('Data diagnostics'):
-        if errors:st.dataframe(pd.DataFrame(errors),hide_index=True,use_container_width=True)
-        else:st.success('No per-symbol errors in this scan.')
-    st.caption('Ranking is research-only. F&O eligibility, actual option premium, expiry, liquidity and next-candle confirmation require separate verification.')
+
+    try:
+        mapping, source, nse_count = discover()
+    except Exception as exc:
+        st.error("Universe discovery failed: " + _error_message(exc))
+        return
+
+    limit = min(50, len(mapping)) if selection == SAMPLE else len(mapping)
+    nse_note = f" · NSE list: {nse_count}" if nse_count is not None else ""
+    st.info(
+        f"F&O source: {source} · Matched Dhan cash IDs: {len(mapping)}"
+        f"{nse_note} · Selected for scan: {limit}"
+    )
+    if nse_count is None:
+        st.caption("Membership is derived from Dhan and not independently confirmed by NSE.")
+
+    rows, errors, valid = scan(mapping, limit)
+    attempted = valid + len(errors)
+    st.caption(
+        f"Analyzed: {valid}/{limit} · Errors: {len(errors)} · "
+        f"Not attempted: {limit - attempted} · Qualified: {len(rows)}"
+    )
+
+    for side, title in (
+        ("CE", "🟢 Top 10 Bullish (CE watchlist)"),
+        ("PE", "🔴 Top 10 Bearish (PE watchlist)"),
+    ):
+        st.markdown("### " + title)
+        ranked = sorted(
+            (row for row in rows if row["Direction"] == side),
+            key=lambda row: (-row["Score"], -row["Volume ×"], row["Symbol"]),
+        )[:10]
+        if ranked:
+            st.dataframe(pd.DataFrame(ranked), hide_index=True, use_container_width=True)
+        elif valid:
+            st.info("No candidates on this side passed the filters in the available data.")
+        else:
+            st.info("No valid Dhan analyses yet. See Data diagnostics.")
+
+    if errors:
+        with st.expander("Data diagnostics"):
+            st.dataframe(pd.DataFrame(errors), hide_index=True, use_container_width=True)
+
+    st.caption("Watchlist only. Option strike, expiry, premium, and liquidity are not verified.")
