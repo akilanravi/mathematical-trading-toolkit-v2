@@ -295,16 +295,7 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
         import dhan_feed
         cid, token = dhan_feed.get_dhan_credentials()
         if cid and token and stf == "5m":
-            # Dynamic master must be populated before filtering supported symbols.
-            try:
-                supported = dhan_feed.load_fo_universe()
-            except Exception as universe_error:
-                st.error(f'Dhan F&O instrument master unavailable: {universe_error}')
-                return pd.DataFrame(), pd.DataFrame(), {'nifty_bias': 'UNKNOWN', 'error': str(universe_error)}
-            # Full-universe mode uses the current verified Dhan list, not the
-            # older static 203-name UI list (which may contain delisted F&O).
-            if universe_type != "Top 50 Most Liquid F&O (Ultra-Fast ⚡)":
-                target_list = sorted(supported)
+            supported = getattr(dhan_feed, "DHAN_SECURITY_MAP", {})
             candidates = [sym for sym in target_list if sym in supported]
             # Sequential requests avoid bursts; cache results across reruns.
             for sym in candidates:
@@ -667,7 +658,7 @@ def render_live_radar():
     st.caption("Dhan-only historical 5-minute candles • Research mode • 30-second UI checks • Cached data up to 5 minutes; not tick-by-tick live")
     rad_universe = st.selectbox("Radar Universe", [
         "Top 50 Most Liquid F&O (Ultra-Fast ⚡)",
-        "All Current Verified F&O Stocks"
+        "All 203 F&O Instruments & Indices"
     ], index=0, key="radar_universe")
     st.caption("Timeframe: 5m  |  Mode: live  |  Auto-refresh: ON")
     force = st.button("🔄 Refresh Radar Now", type="primary", use_container_width=False, key="refresh_radar")
@@ -680,7 +671,7 @@ def render_live_radar():
             pass
     # Results may refresh every minute, but Dhan requests are cached for 5 minutes.
     # The fragment checks every 30s; manual refresh always forces a fresh scan.
-    bucket = int(pd.Timestamp.now(tz=m.IST).timestamp() // 300)
+    bucket = int(pd.Timestamp.now(tz=m.IST).timestamp() // 60)
     with st.spinner("Scanning available F&O candles and mathematical confirmations..."):
         df_bull10, df_bear10, tide_status = run_top10_composite_radar(rad_universe, "5m", "live", bucket)
     st.caption(f"Last scan: {pd.Timestamp.now(tz=m.IST):%d %b %Y %H:%M:%S} IST | Prices reflect last completed candle, not necessarily current LTP")
@@ -722,8 +713,8 @@ def render_live_radar():
     st.warning("SAFETY MODE: Rankings are research watchlists, not entry signals. Strike and stop-loss are withheld until verified against actual contracts and entry rules. Previous indicative strike intervals were unverified.  Actual expiry, strike availability, lot size, option LTP and liquidity require an instrument master + option-chain check. Dhan candle timestamps are displayed; data more than 10 minutes behind the newest scanned candle is excluded from rankings. Yahoo fallback is disabled for radar rankings. Institutional activity is inferred from volume, not verified FII/DII trades.")
 
 with tab_radar:
-    from tab1_radar import render as render_tab1_only
-    render_tab1_only()
+    from tab1_radar import render as render_tab1
+    render_tab1()
 
 # TAB 1: ALL F&O SCREENER
 # ----------------------------------------------------------------------------
@@ -743,16 +734,7 @@ with tab_sig:
 
     if st.button("🚀 Run Deep Analysis & Risk Audit", type="primary", use_container_width=True):
         try:
-            # Use verified Dhan candles for intraday timeframes; do not silently
-            # substitute Yahoo if the selected symbol is unsupported.
-            if tf in ("5m", "15m", "30m", "60m"):
-                import dhan_feed
-                minutes = tf[:-1]
-                source_df = dhan_feed.fetch_dhan_candles(sym, interval=minutes, days=15)
-                r = m.analyse(sym, tf, mode, cfg, premium=prem or None,
-                              day_pnl=day_pnl, df=source_df)
-            else:
-                r = m.analyse(sym, tf, mode, cfg, premium=prem or None, day_pnl=day_pnl)
+            r = m.analyse(sym, tf, mode, cfg, premium=prem or None, day_pnl=day_pnl)
         except Exception as e:
             st.error(f"Error fetching data: {e}")
         else:
@@ -943,5 +925,5 @@ with tab_sig:
 
 # ----------------------------------------------------------------------------
 with tab_paper:
-    from paper_engine import render_paper_tab
-    render_paper_tab()
+    st.subheader("📝 Auto Paper Trader")
+    st.info("Paper trading is not enabled in this baseline. We will implement and validate it in the next step; no simulated trades are generated yet.")
