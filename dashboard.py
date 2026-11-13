@@ -633,22 +633,29 @@ def render_live_radar():
 
     # The original score engine contains eight named components totaling ten points.
     # The ninth check is benchmark-tide alignment. An unavailable condition is grey.
-    labels = ["CPR trend", "Price/CPR", "Camarilla", "EMA 9/21", "Trend filter", "RSI", "Supertrend", "Volume", "NIFTY tide"]
+    labels = ["CPR Trend", "Price vs CPR", "Camarilla H3/H4", "EMA 9/21", "VWAP", "RSI 14", "Supertrend (10,3)", "Volume Spike", "NIFTY Tide"]
     with st.expander("ℹ️ Nine confirmation columns — legend", expanded=False):
-        st.write(" | ".join(f"C{i+1}: {name}" for i, name in enumerate(labels)))
+        st.write(" | ".join(labels))
         st.caption("✅ passed | ❌ failed | ➖ unavailable/neutral. The first eight checks retain the existing weighted 10-point mathematics. A partial multi-point condition counts as passed if it earned points.")
-    left, right = st.columns(2)
-    for panel, data, direction in ((left, df_bull10, "Bull"), (right, df_bear10, "Bear")):
-        with panel:
-            st.markdown("### 🟢 Top 10 Bull (CE watchlist)" if direction == "Bull" else "### 🔴 Top 10 Bear (PE watchlist)")
-            st.caption("Ranked candidates, not guaranteed entries. Verify liquidity and the trade decision before buying options.")
-            cols = ["Symbol", "Price (₹)", f"{direction} Score", "10-Pt Score", "Data Source", "Candle Time"]
-            cols += [f"{direction} C{i}" for i in range(1, 10)]
-            cols += ["Peak Risk", "Structural SL", "Recommended Strike"]
-            shown = data[cols].copy()
-            shown = shown.rename(columns={f"{direction} C{i}": f"C{i}" for i in range(1, 10)})
-            st.dataframe(shown, use_container_width=True, height=460,
-                         column_config={f"C{i}": st.column_config.TextColumn(f"C{i}", width="small", help=labels[i-1]) for i in range(1, 10)})
+    # Full-width, vertically stacked tables keep all indicators readable.
+    display_labels = [
+        "CPR Trend", "Price vs CPR", "Camarilla", "EMA 9/21",
+        "VWAP", "RSI 14", "Supertrend", "Volume", "NIFTY Tide"
+    ]
+    for data, direction in ((df_bull10, "Bull"), (df_bear10, "Bear")):
+        st.markdown("### 🟢 Top 10 Bull (CE watchlist)" if direction == "Bull" else "### 🔴 Top 10 Bear (PE watchlist)")
+        st.caption("Ranked candidates, not guaranteed entries. Verify liquidity and the trade decision before buying options.")
+        cols = ["Symbol", "Price (₹)", f"{direction} Score", "10-Pt Score"]
+        cols += [f"{direction} C{i}" for i in range(1, 10)]
+        cols += ["Data Source", "Candle Time", "Peak Risk", "Structural SL", "Recommended Strike"]
+        shown = data[cols].copy()
+        shown = shown.rename(columns={f"{direction} C{i}": display_labels[i-1] for i in range(1, 10)})
+        shown.index.name = "Rank"
+        st.dataframe(
+            shown, use_container_width=True, height=425,
+            column_config={label: st.column_config.TextColumn(label, width="small") for label in display_labels},
+        )
+        st.divider()
     st.warning("Data provenance: 'Dhan candles' means Dhan historical/intraday API returned candles; 'Yahoo fallback' is not a live Dhan feed. The radar does not verify FII/DII stock-wise trades or option premium liquidity.")
 
 with tab_radar:
