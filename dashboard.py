@@ -277,9 +277,9 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
             "BEL", "HAL", "NTPC", "POWERGRID", "ONGC", "BPCL", "DLF", "INDUSINDBK", "CANBK",
             "SHRIRAMFIN", "TRENT", "POLYCAB", "DIXON", "PERSISTENT", "COFORGE", "LTIM", "VBL"
         ]
-        target_list = sorted(list(set(target_list)))
+        target_list = sorted(list(set(target_list) - {"NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY", "SENSEX"}))
     else:
-        target_list = ALL_FO_SYMBOLS
+        target_list = [x for x in ALL_FO_SYMBOLS if x not in {"NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY", "SENSEX"}]
 
     # 1. Fetch entire universe data in 1 single fast batch call
     batch_period = "30d" if stf in ("5m", "15m") else "2y"
@@ -336,6 +336,10 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
             lv = r["levels"]
             feat = r["features"]
             last_bar = feat.iloc[-1]
+            # Fail closed on missing or invalid inputs. A score on an incomplete
+            # candle must never be presented as a trading candidate.
+            if not pd.notna(last_bar.get("close")):
+                continue
             p = r["price"]
             atr_v = r["atr"]
 
@@ -398,8 +402,10 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
             strike_str = f"{indicative_atm:g} (unverified)" if indicative_atm is not None else "N/A"
             # Structural stop must follow the watchlist direction, not the
             # trade decision (which can be WAIT or opposite direction).
-            bull_sl = float(lv["BC"])
-            bear_sl = float(lv["TC"])
+            # CPR levels are NOT protective stops. Without a verified entry
+            # and direction-specific invalidation, no stop is published.
+            bull_sl = None
+            bear_sl = None
 
             radar_scores.append({
                 "Symbol": sym,
@@ -415,9 +421,9 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
                 "Inst. Activity": f"{vol_mult:.2f}x {'🔥 Absorption' if inst_buying else ('🔻 Distribution' if inst_selling else 'Normal')}",
                 "Safe Entry (Retest)": round(pullback_ideal, 2),
                 "Peak Risk": "⚠️ High (Extended)" if is_overextended else "✅ Low (Near Base)",
-                "Bull Structural SL": round(bull_sl, 2),
-                "Bear Structural SL": round(bear_sl, 2),
-                "Indicative ATM Strike": strike_str,
+                "Bull Structural SL": "Not validated",
+                "Bear Structural SL": "Not validated",
+                "Indicative ATM Strike": "Not verified",
                 "Recommended Strike": "Not verified"
             })
         except Exception:
@@ -437,15 +443,36 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
     if df_radar.empty:
         return pd.DataFrame(), pd.DataFrame(), tide
 
-    # Top 10 Bull stocks (Filtered to eliminate peak chasing)
-    df_bull_top10 = df_radar.sort_values(by="Bull Score", ascending=False).head(10).reset_index(drop=True)
-    df_bull_top10.index = range(1, len(df_bull_top10) + 1)
-    df_bull_top10.index.name = "Rank"
+    # Rank only directional, internally consistent confirmations. Do not
+    # pad Top 10 with bearish stocks or negative/weak composite scores.
+    def eligible(row, direction):
+        own = row["Bull Score"] if direction == "Bull" else row["Bear Score"]
+        other = row["Bear Score"] if direction == "Bull" else row["Bull Score"]
+        points = str(row["10-Pt Score"]).replace(" ", "")
+        import re
+        match = re.fullmatch(r"(\d+)B/(\d+)S", points)
+        if not match:
+            return False
+        bull, bear = map(int, match.groups())
+        directional = bull if direction == "Bull" else bear
+        opposite = bear if direction == "Bull" else bull
+        checks = [row.get(f"{direction} C{i}") for i in range(1, 10)]
+        return (own >= 50 and own > other and directional >= 5
+                and directional > opposite and checks.count("✅") >= 5
+                and row.get("Peak Risk", "").startswith("✅"))
 
-    # Top 10 Bear stocks
-    df_bear_top10 = df_radar.sort_values(by="Bear Score", ascending=False).head(10).reset_index(drop=True)
-    df_bear_top10.index = range(1, len(df_bear_top10) + 1)
-    df_bear_top10.index.name = "Rank"
+    df_bull_top10 = df_radar.loc[df_radar.apply(lambda r: eligible(r, "Bull"), axis=1)].sort_values(
+        by="Bull Score", ascending=False).head(10).reset_index(drop=True)
+    df_bear_top10 = df_radar.loc[df_radar.apply(lambda r: eligible(r, "Bear"), axis=1)].sort_values(
+        by="Bear Score", ascending=False).head(10).reset_index(drop=True)
+    # One stock must never be presented simultaneously as a CE and PE setup.
+    overlapping = set(df_bull_top10.Symbol) & set(df_bear_top10.Symbol)
+    if overlapping:
+        df_bull_top10 = df_bull_top10.loc[~df_bull_top10.Symbol.isin(overlapping)].reset_index(drop=True)
+        df_bear_top10 = df_bear_top10.loc[~df_bear_top10.Symbol.isin(overlapping)].reset_index(drop=True)
+    for frame in (df_bull_top10, df_bear_top10):
+        frame.index = range(1, len(frame) + 1)
+        frame.index.name = "Rank"
 
     return df_bull_top10, df_bear_top10, tide
 
@@ -667,12 +694,15 @@ def render_live_radar():
         "VWAP", "RSI 14", "Supertrend", "Volume", "NIFTY Tide"
     ]
     for data, direction in ((df_bull10, "Bull"), (df_bear10, "Bear")):
-        st.markdown("### 🟢 Top 10 Bull (CE watchlist)" if direction == "Bull" else "### 🔴 Top 10 Bear (PE watchlist)")
+        st.markdown("### 🟢 Up to 10 Bull Candidates (CE research)" if direction == "Bull" else "### 🔴 Up to 10 Bear Candidates (PE research)")
         st.caption("Ranked candidates, not guaranteed entries. Verify liquidity and the trade decision before buying options.")
         cols = ["Symbol", "Price (₹)", f"{direction} Score", "10-Pt Score"]
         cols += [f"{direction} C{i}" for i in range(1, 10)]
         cols += ["Indicative ATM Strike", "Data Source", "Candle Time", "Peak Risk",
                  f"{direction} Structural SL", "Recommended Strike"]
+        if data.empty:
+            st.warning(f"No validated {direction.lower()} candidates meet the confirmation threshold. No trade signal.")
+            continue
         shown = data[cols].copy()
         shown = shown.rename(columns={f"{direction} Structural SL": "Structural SL (spot)"})
         shown = shown.rename(columns={f"{direction} C{i}": display_labels[i-1] for i in range(1, 10)})
@@ -682,7 +712,7 @@ def render_live_radar():
             column_config={label: st.column_config.TextColumn(label, width="small") for label in display_labels},
         )
         st.divider()
-    st.warning("Strike values are indicative ATM calculations using configured/estimated strike intervals, NOT verified NSE contracts. Actual expiry, strike availability, lot size, option LTP and liquidity require an instrument master + option-chain check. Dhan/Yahoo candle timestamps are displayed; data more than 10 minutes behind the newest scanned candle is excluded from rankings. 'Yahoo fallback' is not a live Dhan feed. Institutional activity is inferred from volume, not verified FII/DII trades.")
+    st.warning("SAFETY MODE: Rankings are research watchlists, not entry signals. Strike and stop-loss are withheld until verified against actual contracts and entry rules. Previous indicative strike intervals were unverified.  Actual expiry, strike availability, lot size, option LTP and liquidity require an instrument master + option-chain check. Dhan/Yahoo candle timestamps are displayed; data more than 10 minutes behind the newest scanned candle is excluded from rankings. 'Yahoo fallback' is not a live Dhan feed. Institutional activity is inferred from volume, not verified FII/DII trades.")
 
 with tab_radar:
     render_live_radar()
