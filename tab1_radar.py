@@ -339,7 +339,8 @@ def _error_message(exc):
 
 
 @st.cache_data(ttl=300, show_spinner=False)
-def scan(mapping, limit):
+    with st.spinner(f"Scanning {limit} stocks from Dhan. Results appear when the scan finishes."):
+        rows, errors, valid = scan(mapping, limit)
     rows, errors = [], []
     valid = 0
     selected = list(mapping.items())[:limit]
