@@ -391,7 +391,7 @@ def render():
         st.error("Universe discovery failed: " + _error_message(exc))
         return
 
-    limit = min(50, len(mapping)) if selection == SAMPLE else len(mapping)
+      limit = len(mapping) if selection == ALL_STOCKS else min(50, len(mapping))
     nse_note = f" · NSE list: {nse_count}" if nse_count is not None else ""
     st.info(
         f"F&O source: {source} · Matched Dhan cash IDs: {len(mapping)}"
