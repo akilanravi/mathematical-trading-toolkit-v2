@@ -1,273 +1,177 @@
-"""MTT V2 data provider: Dhan-first, explicit Yahoo fallback, safe diagnostics."""
+"""Dhan-first candles and quotes. Fallback is explicit and never called 'live'."""
 from __future__ import annotations
-
-import logging
-import os
-import re
-import threading
-import time
+import os, time, logging, re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-
-import pandas as pd
-import requests
-import yfinance as yf
-
-LOG = logging.getLogger(__name__)
-IST = ZoneInfo('Asia/Kolkata')
-INDEX = {
-    'NIFTY 50': '^NSEI', 'BANK NIFTY': '^NSEBANK', 'SENSEX': '^BSESN',
-    'FINNIFTY': 'NIFTY_FIN_SERVICE.NS', 'MIDCAP NIFTY': 'NIFTY_MID_SELECT.NS',
-    'INDIA VIX': '^INDIAVIX', 'GIFT NIFTY': None,
-}
-ALIASES = {
-    'NIFTY 50': ('NIFTY 50', 'NIFTY'),
-    'BANK NIFTY': ('NIFTY BANK', 'BANKNIFTY'),
-    'SENSEX': ('SENSEX',),
-    'FINNIFTY': ('NIFTY FIN SERVICE', 'NIFTY FINANCIAL SERVICES', 'FINNIFTY'),
-    'MIDCAP NIFTY': ('NIFTY MID SELECT', 'MIDCPNIFTY'),
-    'INDIA VIX': ('INDIA VIX',),
-    'GIFT NIFTY': ('GIFT NIFTY',),
-}
-_LOCK = threading.RLock()
-_NEXT_REQUEST = 0.0
-_BLOCKED_UNTIL = 0.0
-_BLOCK_REASON = ''
-_SESSION = requests.Session()
-_MASTER = None
-_MASTER_AT = 0.0
-
-
-def _norm(value):
-    return re.sub(r'[^A-Z0-9]', '', str(value).upper())
-
-
-def _column(df, *names):
-    cols = {_norm(c): c for c in df.columns}
-    return next((cols[_norm(n)] for n in names if _norm(n) in cols), None)
-
-
-def _failure_reason(response):
-    try:
-        obj = response.json()
-        if isinstance(obj, dict):
-            data = obj.get('data')
-            if isinstance(data, dict) and data.get('805'):
-                return str(data['805'])
-            return str(obj.get('remarks') or obj.get('message') or obj.get('errorMessage') or obj)[:260]
-    except (ValueError, TypeError):
-        pass
-    return response.text[:260]
-
-
+import requests, pandas as pd, yfinance as yf
+LOG=logging.getLogger(__name__);IST=ZoneInfo('Asia/Kolkata')
+INDEX={'NIFTY 50':'^NSEI','BANK NIFTY':'^NSEBANK','SENSEX':'^BSESN','FINNIFTY':'NIFTY_FIN_SERVICE.NS','MIDCAP NIFTY':'NIFTY_MID_SELECT.NS','INDIA VIX':'^INDIAVIX','GIFT NIFTY':'NQ=F'}
+# GIFT NIFTY deliberately has no proxy: NQ futures is not GIFT NIFTY.
+INDEX['GIFT NIFTY']=None
 class DataProvider:
-    def __init__(self, client_id='', token=''):
-        self.client_id = str(client_id or os.getenv('DHAN_CLIENT_ID', '')).strip()
-        self.token = str(token or os.getenv('DHAN_ACCESS_TOKEN', '')).strip()
-        self.blocked_until = 0.0
-        self.error = ''
-        self.master = None
-        self.last_dhan_error = ''
+ def __init__(self,client_id='',token=''):
+  self.client_id=str(client_id or os.getenv('DHAN_CLIENT_ID','')).strip();self.token=str(token or os.getenv('DHAN_ACCESS_TOKEN','')).strip();self.blocked_until=0;self.error='';self.master=None
+ def request(self,path,payload=None,method='POST',timeout=5):
+  if not self.token or not self.client_id:raise RuntimeError('Dhan credentials missing')
+  if time.monotonic()<self.blocked_until:raise RuntimeError(self.error or 'Dhan temporarily unavailable')
+  headers={'access-token':self.token,'client-id':self.client_id,'Content-Type':'application/json','Accept':'application/json'}
+  try:
+   r=requests.request(method,'https://api.dhan.co/v2/'+path.lstrip('/'),json=payload if method!='GET' else None,headers=headers,timeout=timeout)
+   if r.status_code in (401,403,429):
+    self.error=f'Dhan HTTP {r.status_code}: {r.text[:200]}';self.blocked_until=time.monotonic()+(300 if r.status_code in (401,403) else 30)
+    raise RuntimeError(self.error)
+   r.raise_for_status();return r.json()
+  except requests.RequestException as exc:raise RuntimeError(f'Dhan network/API error: {exc}') from exc
+ def instrument_master(self):
+  if self.master is not None:return self.master
+  # Public Dhan instrument master CSV; downloaded once per process.
+  try:
+   df=pd.read_csv('https://images.dhan.co/api-data/api-scrip-master.csv',low_memory=False)
+   self.master=df;return df
+  except Exception as exc:raise RuntimeError(f'Instrument master unavailable: {exc}')
+ def resolve_index(self,symbol):
+  """Resolve identifiers from Dhan master, never guess security IDs."""
+  aliases={
+   'NIFTY 50':('NIFTY 50','NIFTY'),
+   'BANK NIFTY':('NIFTY BANK','BANKNIFTY'),
+   'SENSEX':('SENSEX',),
+   'FINNIFTY':('NIFTY FIN SERVICE','FINNIFTY','NIFTY FINANCIAL SERVICES'),
+   'MIDCAP NIFTY':('NIFTY MID SELECT','MIDCPNIFTY'),
+   'INDIA VIX':('INDIA VIX',),
+   'GIFT NIFTY':('GIFT NIFTY',),
+  }
+  df=self.instrument_master()
+  cols={re.sub(r'[^a-z0-9]','',str(c).lower()):c for c in df.columns}
+  def col(*names):
+   for n in names:
+    key=re.sub(r'[^a-z0-9]','',n.lower())
+    if key in cols:return cols[key]
+   return None
+  idcol=col('SEM_SMST_SECURITY_ID','SECURITY_ID','SECURITYID')
+  namecol=col('SEM_CUSTOM_SYMBOL','DISPLAY_NAME','SYMBOL_NAME','SEM_TRADING_SYMBOL','TRADING_SYMBOL')
+  segcol=col('SEM_EXM_EXCH_ID','EXCH_ID','EXCHANGE')
+  typecol=col('SEM_INSTRUMENT_NAME','INSTRUMENT','INSTRUMENT_TYPE')
+  if not idcol or not namecol:raise RuntimeError('Instrument master columns not recognized: '+','.join(map(str,df.columns[:20])))
+  names=df[namecol].astype(str).str.upper().str.strip()
+  for alias in aliases.get(symbol,(symbol,)):
+   matched=df.loc[names.eq(alias)]
+   if matched.empty:continue
+   for _,row in matched.iterrows():
+    ex=str(row[segcol]).upper() if segcol else ''
+    inst=str(row[typecol]).upper() if typecol else ''
+    if symbol=='SENSEX':segment='BSE_IDX'
+    elif symbol=='GIFT NIFTY':segment='NSE_FNO' if ex=='NSE' else None
+    else:segment='NSE_IDX'
+    if segment is None:continue
+    try:return int(row[idcol]),segment,inst
+    except (ValueError,TypeError):continue
+  raise LookupError('No verified Dhan instrument mapping for '+symbol)
 
-    def request(self, path, payload=None, method='POST', timeout=8):
-        global _NEXT_REQUEST, _BLOCKED_UNTIL, _BLOCK_REASON
-        if not self.client_id or not self.token:
-            raise RuntimeError('Dhan credentials missing')
-        method = method.upper()
-        with _LOCK:
-            now = time.monotonic()
-            if now < _BLOCKED_UNTIL:
-                raise RuntimeError(f'Dhan cooldown ({int(_BLOCKED_UNTIL-now)}s): {_BLOCK_REASON}')
-            wait = max(0.0, _NEXT_REQUEST-now)
-            # Serialize calls across all providers in this process.
-            if wait:
-                time.sleep(wait)
-            _NEXT_REQUEST = time.monotonic() + max(1.0, float(os.getenv('DHAN_MIN_INTERVAL_SECONDS', '1.5')))
-            try:
-                response = _SESSION.request(
-                    method, 'https://api.dhan.co/v2/' + path.lstrip('/'),
-                    json=payload if method != 'GET' else None,
-                    params=payload if method == 'GET' else None,
-                    headers={'access-token': self.token, 'client-id': self.client_id,
-                             'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    timeout=timeout,
-                )
-            except requests.RequestException as exc:
-                self.last_dhan_error = f'Network error: {exc}'
-                raise RuntimeError(self.last_dhan_error) from exc
-            if response.status_code in (401, 403, 429):
-                reason = _failure_reason(response)
-                self.last_dhan_error = f'HTTP {response.status_code}: {reason}'
-                if response.status_code == 429:
-                    try:
-                        retry = int(response.headers.get('Retry-After', '0'))
-                    except ValueError:
-                        retry = 0
-                    _BLOCKED_UNTIL = time.monotonic() + max(600, retry)
-                    _BLOCK_REASON = self.last_dhan_error
-                # Auth and entitlement errors need credential/plan correction, not repeated requests.
-                elif response.status_code in (401, 403):
-                    _BLOCKED_UNTIL = time.monotonic() + 300
-                    _BLOCK_REASON = self.last_dhan_error
-                raise RuntimeError(self.last_dhan_error)
-            try:
-                response.raise_for_status()
-                obj = response.json()
-            except (requests.RequestException, ValueError) as exc:
-                self.last_dhan_error = f'Dhan HTTP {response.status_code}: {_failure_reason(response)}'
-                raise RuntimeError(self.last_dhan_error) from exc
-            if isinstance(obj, dict) and str(obj.get('status', '')).lower() == 'failed':
-                self.last_dhan_error = f'Dhan API rejected request: {obj}'[:300]
-                raise RuntimeError(self.last_dhan_error)
-            self.last_dhan_error = ''
-            return obj
+ def index_quote(self,symbol):
+  reason=''
+  if self.client_id and self.token:
+   try:
+    sid,segment,_=self.resolve_index(symbol)
+    q=self.quote(symbol,security_id=sid,segment=segment)
+    if q['source']=='Dhan':return q
+    reason=q.get('reason','Dhan quote unavailable')
+   except Exception as exc:reason=str(exc);LOG.warning('Dhan index %s: %s',symbol,exc)
+  else:reason='Dhan credentials missing in Streamlit Secrets'
+  # The fallback quote deliberately does not fabricate GIFT NIFTY from Nasdaq futures.
+  q=self.quote(symbol)
+  if q['source']=='N/A':q['reason']=reason+'; '+q.get('reason','')
+  else:q['reason']='Dhan unavailable: '+reason
+  return q
 
-    def instrument_master(self):
-        global _MASTER, _MASTER_AT
-        if self.master is not None:
-            return self.master
-        with _LOCK:
-            if _MASTER is not None and time.monotonic()-_MASTER_AT < 86400:
-                self.master = _MASTER
-                return _MASTER
-            try:
-                df = pd.read_csv('https://images.dhan.co/api-data/api-scrip-master.csv', low_memory=False)
-                if df.empty:
-                    raise ValueError('empty CSV')
-            except Exception as exc:
-                raise RuntimeError(f'Instrument master unavailable: {exc}') from exc
-            _MASTER, _MASTER_AT = df, time.monotonic()
-            self.master = df
-            return df
+ def candles(self,symbol,interval='5m',period='5d',security_id=None,segment='NSE_EQ',instrument='EQUITY'):
+  if security_id:
+   try:
+    now=datetime.now(IST);days=70 if interval=='5m' else 420
+    path='charts/intraday' if interval!='1d' else 'charts/historical'
+    payload={'securityId':str(security_id),'exchangeSegment':segment,'instrument':instrument,'fromDate':(now-timedelta(days=days)).strftime('%Y-%m-%d'),'toDate':now.strftime('%Y-%m-%d')}
+    if interval!='1d':payload['interval']=int(interval.replace('m',''))
+    obj=self.request(path,payload)
+    if not isinstance(obj,dict) or not obj.get('close'):raise ValueError('empty Dhan candles')
+    df=pd.DataFrame({'Open':obj['open'],'High':obj['high'],'Low':obj['low'],'Close':obj['close'],'Volume':obj['volume']},index=pd.to_datetime(obj['start_Time'],unit='s',utc=True).tz_convert(IST))
+    return df.sort_index(),'Dhan'
+   except Exception as exc:LOG.warning('Dhan candles %s: %s',symbol,exc)
+  ticker=INDEX.get(symbol,symbol+'.NS' if not symbol.startswith('^') and not symbol.endswith('.NS') else symbol)
+  if not ticker:return pd.DataFrame(),'N/A'
+  try:
+   df=yf.download(ticker,period=period,interval=interval,progress=False,auto_adjust=False,threads=False,timeout=7)
+   if isinstance(df.columns,pd.MultiIndex):df.columns=df.columns.get_level_values(0)
+   if df.empty:return df,'N/A'
+   return df[['Open','High','Low','Close','Volume']].dropna(),'Yahoo (delayed/unverified)'
+  except Exception as exc:LOG.warning('Yahoo %s: %s',symbol,exc);return pd.DataFrame(),'N/A'
+ def quote(self,symbol,security_id=None,segment='NSE_EQ'):
+  if security_id:
+   try:
+    obj=self.request('marketfeed/ltp',{segment:[int(security_id)]})
+    item=obj['data'][segment][str(security_id)];return {'ltp':float(item['last_price']),'change':None,'source':'Dhan','reason':''}
+   except Exception as exc:LOG.warning('Dhan quote %s: %s',symbol,exc)
+  df,source=self.candles(symbol,'1d','5d')
+  if df.empty:return {'ltp':None,'change':None,'source':'N/A','reason':'Dhan unavailable and Yahoo returned no data'}
+  last=float(df.Close.iloc[-1]);prev=float(df.Close.iloc[-2]) if len(df)>1 else None
+  return {'ltp':last,'change':(last/prev-1)*100 if prev else None,'source':source,'reason':'Yahoo may be delayed'}
+ def option_chain(self,underlying_id,segment='NSE_EQ',expiry=None):
+  if not expiry:raise ValueError('Expiry required from instrument master')
+  return self.request('optionchain',{'UnderlyingScrip':int(underlying_id),'UnderlyingSeg':segment,'Expiry':expiry})
 
-    def resolve_index(self, symbol):
-        df = self.instrument_master()
-        idcol = _column(df, 'SEM_SMST_SECURITY_ID', 'SECURITY_ID', 'SECURITYID')
-        namecol = _column(df, 'SEM_CUSTOM_SYMBOL', 'DISPLAY_NAME', 'SYMBOL_NAME', 'SEM_TRADING_SYMBOL', 'TRADING_SYMBOL')
-        segcol = _column(df, 'SEM_EXM_EXCH_ID', 'EXCH_ID', 'EXCHANGE')
-        typecol = _column(df, 'SEM_INSTRUMENT_NAME', 'INSTRUMENT', 'INSTRUMENT_TYPE')
-        if not idcol or not namecol or not segcol:
-            raise RuntimeError('Dhan instrument master missing ID/name/exchange columns')
-        wanted_exchange = 'BSE' if symbol == 'SENSEX' else 'NSE'
-        wanted_segment = 'BSE_IDX' if symbol == 'SENSEX' else 'NSE_IDX'
-        aliases = {_norm(a) for a in ALIASES.get(symbol, (symbol,))}
-        matched = df.loc[df[namecol].map(_norm).isin(aliases) & df[segcol].astype(str).str.upper().str.strip().eq(wanted_exchange)]
-        if typecol:
-            # Index master rows generally have instrument type INDEX. Reject derivatives.
-            matched = matched.loc[matched[typecol].astype(str).str.upper().str.contains('INDEX|IDX', regex=True, na=False)]
-        candidates = []
-        for _, row in matched.iterrows():
-            try:
-                candidates.append((int(row[idcol]), wanted_segment, str(row[typecol]) if typecol else 'INDEX'))
-            except (TypeError, ValueError):
-                continue
-        if len(candidates) != 1:
-            raise LookupError(f'{symbol}: expected one verified index mapping, found {len(candidates)}; inspect master columns/rows')
-        return candidates[0]
+ def fo_stocks(self):
+     """Verified NSE F&O stock underlyings, mapped to NSE cash security IDs.
 
-    def dhan_quote(self, security_id, segment='NSE_EQ'):
-        sid = str(int(security_id))
-        obj = self.request('marketfeed/ltp', {segment: [int(sid)]})
-        if not isinstance(obj, dict):
-            raise ValueError('Dhan quote response is not a JSON object')
-        data = obj.get('data')
-        if not isinstance(data, dict):
-            raise ValueError(f'Dhan quote has no data object: {str(obj)[:240]}')
-        group = data.get(segment)
-        if not isinstance(group, dict):
-            raise ValueError(f'Dhan quote missing segment {segment}; available={list(data)}')
-        item = group.get(sid) or group.get(int(sid))
-        if not isinstance(item, dict):
-            raise ValueError(f'Dhan quote missing security {sid}; available={list(group)[:8]}')
-        price = item.get('last_price')
-        if price is None:
-            raise ValueError(f'Dhan quote missing last_price; fields={list(item)}')
-        ltp = float(price)
-        if ltp <= 0:
-            raise ValueError(f'Invalid Dhan LTP {ltp}')
-        return {'ltp': ltp, 'change': None, 'source': 'Dhan', 'reason': ''}
+     Futures membership is determined from current Dhan master; no static ticker list.
+     """
+     df = self.instrument_master()
+     exch = _column(df, 'SEM_EXM_EXCH_ID', 'EXCH_ID', 'EXCHANGE')
+     inst = _column(df, 'SEM_INSTRUMENT_NAME', 'INSTRUMENT', 'INSTRUMENT_TYPE')
+     sym = _column(df, 'SEM_TRADING_SYMBOL', 'TRADING_SYMBOL', 'SEM_CUSTOM_SYMBOL')
+     sid = _column(df, 'SEM_SMST_SECURITY_ID', 'SECURITY_ID')
+     underlying = _column(df, 'SEM_UNDERLYING_SYMBOL', 'UNDERLYING_SYMBOL', 'UNDERLYING')
+     if not all((exch, inst, sym, sid)):
+         raise RuntimeError('Dhan master missing required columns; cannot verify F&O universe')
+     exchange = df[exch].astype(str).str.upper().str.strip()
+     instruments = df[inst].astype(str).str.upper().str.strip()
+     futures = df.loc[exchange.eq('NSE') & instruments.eq('FUTSTK')]
+     if futures.empty:
+         raise RuntimeError('No NSE FUTSTK records in instrument master; inspect master schema')
+     if underlying:
+         names = futures[underlying].astype(str).str.upper().str.strip()
+     else:
+         # Do not guess underlyings by stripping expiry from futures trading symbols.
+         raise RuntimeError('Underlying symbol column missing; cannot safely map F&O stocks')
+     eligible = set(names) - {'', 'NAN', 'NONE'}
+     cash = df.loc[exchange.eq('NSE') & instruments.isin(['EQUITY', 'EQ'])].copy()
+     cash['_symbol'] = cash[sym].astype(str).str.upper().str.strip()
+     cash = cash.loc[cash['_symbol'].isin(eligible)]
+     out = {}
+     for name, group in cash.groupby('_symbol'):
+         ids = pd.to_numeric(group[sid], errors='coerce').dropna().astype(int).unique()
+         if len(ids) == 1:
+             out[name] = {'security_id': int(ids[0]), 'segment': 'NSE_EQ', 'instrument': 'EQUITY'}
+     if not out:
+         raise RuntimeError('F&O stocks found, but no unambiguous NSE_EQ mappings')
+     return dict(sorted(out.items()))
 
-    def index_quote(self, symbol):
-        reason = 'Dhan credentials missing'
-        if self.client_id and self.token and symbol != 'GIFT NIFTY':
-            try:
-                sid, segment, _ = self.resolve_index(symbol)
-                return self.dhan_quote(sid, segment)
-            except Exception as exc:
-                reason = str(exc)
-                self.last_dhan_error = reason
-                LOG.warning('Dhan index %s: %s', symbol, reason)
-        elif symbol == 'GIFT NIFTY':
-            reason = 'No verified GIFT NIFTY data source configured'
-        result = self.quote(symbol)
-        result['reason'] = f'Dhan unavailable: {reason}; {result.get("reason", "")}'
-        return result
-
-    def candles(self, symbol, interval='5m', period='5d', security_id=None,
-                segment='NSE_EQ', instrument='EQUITY'):
-        if security_id is not None:
-            try:
-                now = datetime.now(IST)
-                intraday = interval != '1d'
-                days = 5 if intraday else 365
-                path = 'charts/intraday' if intraday else 'charts/historical'
-                payload = {
-                    'securityId': str(security_id), 'exchangeSegment': segment,
-                    'instrument': instrument,
-                    'fromDate': (now-timedelta(days=days)).strftime('%Y-%m-%d'),
-                    'toDate': now.strftime('%Y-%m-%d'), 'oi': False,
-                }
-                if intraday:
-                    if not interval.endswith('m'):
-                        raise ValueError(f'Unsupported Dhan intraday interval {interval}')
-                    payload['interval'] = int(interval[:-1])
-                obj = self.request(path, payload)
-                if not isinstance(obj, dict) or not obj.get('close'):
-                    raise ValueError(f'Empty Dhan candles: {str(obj)[:160]}')
-                timestamps = obj.get('start_Time') or obj.get('startTime')
-                if timestamps is None:
-                    raise ValueError('Dhan candle timestamps missing')
-                df = pd.DataFrame({
-                    'Open': obj['open'], 'High': obj['high'], 'Low': obj['low'],
-                    'Close': obj['close'], 'Volume': obj['volume'],
-                }, index=pd.to_datetime(timestamps, unit='s', utc=True).tz_convert(IST))
-                return df.sort_index().dropna(), 'Dhan'
-            except Exception as exc:
-                self.last_dhan_error = str(exc)
-                LOG.warning('Dhan candles %s: %s', symbol, exc)
-        ticker = INDEX.get(symbol, symbol+'.NS' if not symbol.startswith('^') and not symbol.endswith('.NS') else symbol)
-        if not ticker:
-            return pd.DataFrame(), 'N/A'
-        try:
-            df = yf.download(ticker, period=period, interval=interval,
-                             progress=False, auto_adjust=False, threads=False, timeout=7)
-            if isinstance(df.columns, pd.MultiIndex):
-                df.columns = df.columns.get_level_values(0)
-            if df.empty:
-                return pd.DataFrame(), 'N/A'
-            return df[['Open', 'High', 'Low', 'Close', 'Volume']].dropna(), 'Yahoo (delayed/unverified)'
-        except Exception as exc:
-            LOG.warning('Yahoo candles %s: %s', symbol, exc)
-            return pd.DataFrame(), 'N/A'
-
-    def quote(self, symbol, security_id=None, segment='NSE_EQ'):
-        if security_id is not None:
-            try:
-                return self.dhan_quote(security_id, segment)
-            except Exception as exc:
-                self.last_dhan_error = str(exc)
-                LOG.warning('Dhan quote %s: %s', symbol, exc)
-        df, source = self.candles(symbol, '1d', '5d')
-        if df.empty:
-            return {'ltp': None, 'change': None, 'source': 'N/A',
-                    'reason': self.last_dhan_error or 'No Dhan/Yahoo price'}
-        last = float(df['Close'].iloc[-1])
-        prev = float(df['Close'].iloc[-2]) if len(df) > 1 else None
-        return {'ltp': last, 'change': (last/prev-1)*100 if prev and prev > 0 else None,
-                'source': source, 'reason': 'Yahoo quote may be delayed'}
-
-    def option_chain(self, underlying_id, segment='NSE_EQ', expiry=None):
-        if not expiry:
-            raise ValueError('Expiry required from verified instrument master/expiry list')
-        return self.request('optionchain', {'UnderlyingScrip': int(underlying_id),
-                                            'UnderlyingSeg': segment, 'Expiry': expiry})
+ def stock_quotes(self, mapping, batch_size=100):
+     """Batched Dhan quotes. Missing entries are explicitly N/A, never fabricated."""
+     result = {s: {'ltp': None, 'change': None, 'source': 'N/A', 'reason': 'Not fetched'} for s in mapping}
+     symbols = list(mapping)
+     for start in range(0, len(symbols), batch_size):
+         chunk = symbols[start:start+batch_size]
+         try:
+             ids = [int(mapping[s]['security_id']) for s in chunk]
+             response = self.request('marketfeed/ltp', {'NSE_EQ': ids})
+             group = response.get('data', {}).get('NSE_EQ', {})
+             for s in chunk:
+                 item = group.get(str(mapping[s]['security_id']), {})
+                 price = item.get('last_price') if isinstance(item, dict) else None
+                 if price is not None and float(price) > 0:
+                     result[s] = {'ltp': float(price), 'change': None, 'source': 'Dhan', 'reason': ''}
+                 else:
+                     result[s]['reason'] = 'No valid Dhan LTP in response'
+         except Exception as exc:
+             for s in chunk:
+                 result[s]['reason'] = str(exc)[:180]
+     return result
