@@ -261,6 +261,11 @@ def build_stock_institutional_60d_ledger(symbol, df_daily):
 # ----------------------------------------------------------------------------
 # COMPOSITE CONFLUENCE RADAR (FII/DII + 10-PT INDICATORS + CPR + PULLBACK GUARD)
 # ----------------------------------------------------------------------------
+@st.cache_data(ttl=300, show_spinner=False)
+def _cached_dhan_radar_candles(symbol):
+    import dhan_feed
+    return dhan_feed.fetch_dhan_candles(symbol, interval="5", days=10)
+
 @st.cache_data(ttl=60, show_spinner=False)
 def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
     """
@@ -281,44 +286,36 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
     else:
         target_list = [x for x in ALL_FO_SYMBOLS if x not in {"NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY", "SENSEX"}]
 
-    # 1. Fetch entire universe data in 1 single fast batch call
-    batch_period = "30d" if stf in ("5m", "15m") else "2y"
-    batch_data = m.fetch_batch(target_list, stf, batch_period)
-    # Dhan intraday candles take precedence when the symbol is supported.
-    # Yahoo is explicitly marked as fallback; no quote is misrepresented as Dhan.
-    source_by_symbol = {sym: "Yahoo fallback" for sym in batch_data}
-    dhan_available = False
+    # Dhan-only, fail-closed radar. Never silently replace missing Dhan candles
+    # with Yahoo candles. The existing Dhan connector has a limited symbol map;
+    # unmapped stocks are excluded until the official instrument master is used.
+    batch_data = {}
+    source_by_symbol = {}
     try:
         import dhan_feed
         cid, token = dhan_feed.get_dhan_credentials()
-        dhan_available = bool(cid and token)
-        supported = getattr(dhan_feed, "DHAN_SECURITY_MAP", {})
-        if dhan_available and stf == "5m":
+        if cid and token and stf == "5m":
+            supported = getattr(dhan_feed, "DHAN_SECURITY_MAP", {})
             candidates = [sym for sym in target_list if sym in supported]
-            def dhan_candles(sym):
+            # Sequential requests avoid bursts; cache results across reruns.
+            for sym in candidates:
                 try:
-                    return sym, dhan_feed.fetch_dhan_candles(sym, interval="5", days=10)
-                except Exception:
-                    return sym, pd.DataFrame()
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-                for sym, candles in pool.map(dhan_candles, candidates):
+                    candles = _cached_dhan_radar_candles(sym)
                     if isinstance(candles, pd.DataFrame) and len(candles) >= 70:
                         batch_data[sym] = candles
-                        source_by_symbol[sym] = "Dhan candles"
+                        source_by_symbol[sym] = "Dhan (historical candles)"
+                except Exception:
+                    continue
     except (ImportError, AttributeError):
         pass
 
-    
     # 2. Get live benchmark tide
     tide = get_nifty_market_tide()
     nifty_bull = tide["nifty_bias"] == "BULLISH"
     nifty_bear = tide["nifty_bias"] == "BEARISH"
 
-    # 3. Get India VIX
-    try:
-        vix_val = m.fetch("^INDIAVIX", "1d", "5d")["close"].iloc[-1] / 100.0
-    except Exception:
-        vix_val = 0.14
+    # Volatility proxy is not verified live VIX. Do not claim otherwise.
+    vix_val = 0.14
 
     radar_scores = []
     # Radar rankings must not silently mix substantially different candle ages.
@@ -658,7 +655,7 @@ def calculate_mtf_confluence(symbol, cfg):
 @st.fragment(run_every="30s")
 def render_live_radar():
     st.subheader("🎯 Live F&O Radar | 5-Minute Professional Desk")
-    st.caption("5-minute completed candles • Live mode • Auto scan on opening • 30-second refresh • 10-point weighted scoring unchanged")
+    st.caption("Dhan-only historical 5-minute candles • Research mode • 30-second UI checks • Cached data up to 5 minutes; not tick-by-tick live")
     rad_universe = st.selectbox("Radar Universe", [
         "Top 50 Most Liquid F&O (Ultra-Fast ⚡)",
         "All 203 F&O Instruments & Indices"
@@ -667,11 +664,12 @@ def render_live_radar():
     force = st.button("🔄 Refresh Radar Now", type="primary", use_container_width=False, key="refresh_radar")
     if force:
         run_top10_composite_radar.clear()
+        _cached_dhan_radar_candles.clear()
         try:
             m.fetch.clear()
         except (AttributeError, TypeError):
             pass
-    # The refresh bucket is intentionally 60s to avoid excessive Dhan candle API calls.
+    # Results may refresh every minute, but Dhan requests are cached for 5 minutes.
     # The fragment checks every 30s; manual refresh always forces a fresh scan.
     bucket = int(pd.Timestamp.now(tz=m.IST).timestamp() // 60)
     with st.spinner("Scanning available F&O candles and mathematical confirmations..."):
@@ -679,7 +677,7 @@ def render_live_radar():
     st.caption(f"Last scan: {pd.Timestamp.now(tz=m.IST):%d %b %Y %H:%M:%S} IST | Prices reflect last completed candle, not necessarily current LTP")
     st.info(f"🌊 NIFTY 50: ₹{tide_status['nifty_px']:,.2f} | {tide_status['nifty_icon']} {tide_status['nifty_bias']} | {tide_status['nifty_msg']}")
     if df_bull10.empty and df_bear10.empty:
-        st.warning("No valid radar results. Check Dhan credentials, API responses, market data availability and Yahoo fallback.")
+        st.warning("No valid radar results. Check Dhan credentials, API responses, market data availability and Dhan candle permissions.")
         return
 
     # The original score engine contains eight named components totaling ten points.
@@ -712,7 +710,7 @@ def render_live_radar():
             column_config={label: st.column_config.TextColumn(label, width="small") for label in display_labels},
         )
         st.divider()
-    st.warning("SAFETY MODE: Rankings are research watchlists, not entry signals. Strike and stop-loss are withheld until verified against actual contracts and entry rules. Previous indicative strike intervals were unverified.  Actual expiry, strike availability, lot size, option LTP and liquidity require an instrument master + option-chain check. Dhan/Yahoo candle timestamps are displayed; data more than 10 minutes behind the newest scanned candle is excluded from rankings. 'Yahoo fallback' is not a live Dhan feed. Institutional activity is inferred from volume, not verified FII/DII trades.")
+    st.warning("SAFETY MODE: Rankings are research watchlists, not entry signals. Strike and stop-loss are withheld until verified against actual contracts and entry rules. Previous indicative strike intervals were unverified.  Actual expiry, strike availability, lot size, option LTP and liquidity require an instrument master + option-chain check. Dhan candle timestamps are displayed; data more than 10 minutes behind the newest scanned candle is excluded from rankings. Yahoo fallback is disabled for radar rankings. Institutional activity is inferred from volume, not verified FII/DII trades.")
 
 with tab_radar:
     render_live_radar()
