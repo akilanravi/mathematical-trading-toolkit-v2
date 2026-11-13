@@ -514,6 +514,34 @@ def _sigma_for(inst, feat_daily_close, use_vix=True, vix_val=None):
     return max(rv, inst["vol_floor"]), "realised vol (floored)"
 
 
+def normalize_ohlcv(df):
+    """Accept Dhan/Yahoo OHLCV case variants; reject invalid data explicitly."""
+    if not isinstance(df, pd.DataFrame) or df.empty:
+        raise ValueError("No OHLCV candles supplied")
+    out = df.copy()
+    # Dhan callers may supply both `High` and `high`; prefer canonical lowercase.
+    for key in ("open", "high", "low", "close", "volume"):
+        matches = [col for col in out.columns if str(col).strip().lower() == key]
+        if not matches:
+            raise ValueError(f"Missing OHLCV column {key!r}; available: {list(out.columns)}")
+        selected = key if key in matches else matches[0]
+        out[key] = pd.to_numeric(out[selected], errors="coerce")
+    out = out[["open", "high", "low", "close", "volume"]].dropna(subset=["open", "high", "low", "close"])
+    if not isinstance(out.index, pd.DatetimeIndex):
+        raise ValueError("OHLCV index must contain datetime timestamps")
+    if out.index.tz is None:
+        out.index = out.index.tz_localize(IST)
+    else:
+        out.index = out.index.tz_convert(IST)
+    out = out[~out.index.duplicated(keep="last")].sort_index()
+    if len(out) < 3:
+        raise ValueError("Not enough valid OHLCV candles")
+    if ((out["high"] < out["low"]) | (out["high"] < out[["open", "close"]].max(axis=1)) |
+            (out["low"] > out[["open", "close"]].min(axis=1)) | (out["close"] <= 0)).any():
+        raise ValueError("Invalid OHLC price relationships")
+    return out
+
+
 def analyse(name, tf="15m", mode="live", cfg=None, premium=None, dte=None, lot=None, step=None,
             day_pnl=0.0, period=None, df=None, vix_val=None):
     cfg = cfg or Config()
@@ -522,6 +550,7 @@ def analyse(name, tf="15m", mode="live", cfg=None, premium=None, dte=None, lot=N
     period = period or ("30d" if style == "intraday" else "3y")
     if df is None:
         df = fetch(inst["yf"], tf, period)
+    df = normalize_ohlcv(df)
     now = pd.Timestamp.now(tz=IST)
     warnings = []
     if style == "intraday" and mode == "live":
