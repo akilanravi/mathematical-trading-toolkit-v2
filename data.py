@@ -9,6 +9,16 @@ LOG=logging.getLogger(__name__);IST=ZoneInfo('Asia/Kolkata')
 INDEX={'NIFTY 50':'^NSEI','BANK NIFTY':'^NSEBANK','SENSEX':'^BSESN','FINNIFTY':'NIFTY_FIN_SERVICE.NS','MIDCAP NIFTY':'NIFTY_MID_SELECT.NS','INDIA VIX':'^INDIAVIX','GIFT NIFTY':'NQ=F'}
 # GIFT NIFTY deliberately has no proxy: NQ futures is not GIFT NIFTY.
 INDEX['GIFT NIFTY']=None
+def _column(df: pd.DataFrame, *candidates: str) -> str | None:
+    """Find a Dhan master column despite case, spaces or underscores."""
+    normalized = {re.sub(r"[^a-z0-9]", "", str(name).lower()): name for name in df.columns}
+    for candidate in candidates:
+        key = re.sub(r"[^a-z0-9]", "", candidate.lower())
+        if key in normalized:
+            return normalized[key]
+    return None
+
+
 class DataProvider:
  def __init__(self,client_id='',token=''):
   self.client_id=str(client_id or os.getenv('DHAN_CLIENT_ID','')).strip();self.token=str(token or os.getenv('DHAN_ACCESS_TOKEN','')).strip();self.blocked_until=0;self.error='';self.master=None
