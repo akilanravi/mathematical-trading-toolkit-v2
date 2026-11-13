@@ -300,7 +300,7 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
                     return sym, dhan_feed.fetch_dhan_candles(sym, interval="5", days=10)
                 except Exception:
                     return sym, pd.DataFrame()
-            with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
                 for sym, candles in pool.map(dhan_candles, candidates):
                     if isinstance(candles, pd.DataFrame) and len(candles) >= 70:
                         batch_data[sym] = candles
@@ -321,6 +321,9 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
         vix_val = 0.14
 
     radar_scores = []
+    # Radar rankings must not silently mix substantially different candle ages.
+    # Market snapshots remain historical after close; age is compared within the
+    # same trading session, not against wall-clock time overnight.
     
     for sym in target_list:
         if sym not in batch_data:
@@ -386,13 +389,22 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
             if not is_overextended: comp_bear += 10
             else: comp_bear -= 25
 
-            strike_str = f"{r['plan']['strike']:.0f} {r['plan']['direction']}" if r["plan"] else "-"
-            sl_spot = lv["BC"] if dec["direction"] == "CE" else lv["TC"]
+            # A trade plan is intentionally absent when the entry window is closed.
+            # Show a clearly labelled, *indicative* ATM strike for each watchlist
+            # direction without presenting a made-up contract as tradeable.
+            inst = r["inst"]
+            step = inst.get("step") or m.default_step(p)
+            indicative_atm = round(p / step) * step if step and step > 0 else None
+            strike_str = f"{indicative_atm:g} (unverified)" if indicative_atm is not None else "N/A"
+            # Structural stop must follow the watchlist direction, not the
+            # trade decision (which can be WAIT or opposite direction).
+            bull_sl = float(lv["BC"])
+            bear_sl = float(lv["TC"])
 
             radar_scores.append({
                 "Symbol": sym,
                 "Data Source": source_by_symbol.get(sym, "Unknown"),
-                "Candle Time": str(df_sym.index[-1]),
+                "Candle Time": str(r["time"]),
                 **{f"Bull C{i+1}": v for i, v in enumerate(direction_checks["Bull"])},
                 **{f"Bear C{i+1}": v for i, v in enumerate(direction_checks["Bear"])},
                 "Price (₹)": round(p, 2),
@@ -403,13 +415,25 @@ def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
                 "Inst. Activity": f"{vol_mult:.2f}x {'🔥 Absorption' if inst_buying else ('🔻 Distribution' if inst_selling else 'Normal')}",
                 "Safe Entry (Retest)": round(pullback_ideal, 2),
                 "Peak Risk": "⚠️ High (Extended)" if is_overextended else "✅ Low (Near Base)",
-                "Structural SL": round(sl_spot, 2),
-                "Recommended Strike": strike_str
+                "Bull Structural SL": round(bull_sl, 2),
+                "Bear Structural SL": round(bear_sl, 2),
+                "Indicative ATM Strike": strike_str,
+                "Recommended Strike": "Not verified"
             })
         except Exception:
             continue
 
     df_radar = pd.DataFrame(radar_scores)
+    if df_radar.empty:
+        return pd.DataFrame(), pd.DataFrame(), tide
+
+    # Do not rank a stale Dhan candle against a newer Yahoo candle.
+    # Keep the freshest common trading session and at most 10 minutes of skew.
+    parsed = pd.to_datetime(df_radar["Candle Time"], utc=True, errors="coerce")
+    if parsed.notna().any():
+        newest = parsed.max()
+        fresh = parsed.notna() & ((newest - parsed) <= pd.Timedelta(minutes=10))
+        df_radar = df_radar.loc[fresh].copy()
     if df_radar.empty:
         return pd.DataFrame(), pd.DataFrame(), tide
 
@@ -647,8 +671,10 @@ def render_live_radar():
         st.caption("Ranked candidates, not guaranteed entries. Verify liquidity and the trade decision before buying options.")
         cols = ["Symbol", "Price (₹)", f"{direction} Score", "10-Pt Score"]
         cols += [f"{direction} C{i}" for i in range(1, 10)]
-        cols += ["Data Source", "Candle Time", "Peak Risk", "Structural SL", "Recommended Strike"]
+        cols += ["Indicative ATM Strike", "Data Source", "Candle Time", "Peak Risk",
+                 f"{direction} Structural SL", "Recommended Strike"]
         shown = data[cols].copy()
+        shown = shown.rename(columns={f"{direction} Structural SL": "Structural SL (spot)"})
         shown = shown.rename(columns={f"{direction} C{i}": display_labels[i-1] for i in range(1, 10)})
         shown.index.name = "Rank"
         st.dataframe(
@@ -656,7 +682,7 @@ def render_live_radar():
             column_config={label: st.column_config.TextColumn(label, width="small") for label in display_labels},
         )
         st.divider()
-    st.warning("Data provenance: 'Dhan candles' means Dhan historical/intraday API returned candles; 'Yahoo fallback' is not a live Dhan feed. The radar does not verify FII/DII stock-wise trades or option premium liquidity.")
+    st.warning("Strike values are indicative ATM calculations using configured/estimated strike intervals, NOT verified NSE contracts. Actual expiry, strike availability, lot size, option LTP and liquidity require an instrument master + option-chain check. Dhan/Yahoo candle timestamps are displayed; data more than 10 minutes behind the newest scanned candle is excluded from rankings. 'Yahoo fallback' is not a live Dhan feed. Institutional activity is inferred from volume, not verified FII/DII trades.")
 
 with tab_radar:
     render_live_radar()
