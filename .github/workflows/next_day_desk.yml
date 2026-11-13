@@ -1,0 +1,35 @@
+name: Next-Day Desk Snapshot
+on:
+  workflow_dispatch:
+  schedule:
+    # 16:20 IST Monday-Friday (GitHub scheduling can be delayed)
+    - cron: '50 10 * * 1-5'
+permissions:
+  contents: write
+concurrency:
+  group: next-day-desk
+  cancel-in-progress: false
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Generate after-close snapshot
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+        run: python next_day_engine.py
+      - name: Commit validated snapshot only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add snapshots/next_day.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update after-close next-day watchlist'
+            git push
+          fi
