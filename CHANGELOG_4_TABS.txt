@@ -1,0 +1,1 @@
+Baseline: yesterday uploaded ZIP. Only dashboard.py navigation changed. Original Radar, Screener, and Deep Analysis blocks retained. Backtest, cost calculator, FII/DII and journal tab blocks removed from display. Paper Trader is a placeholder; no trading logic implemented. No API, refresh, or data-provider changes.
