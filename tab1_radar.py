@@ -1,4 +1,4 @@
-""Tab 1 only. Dhan cash candles, shared MTT scoring, background scan."""
+# Tab 1 only. Dhan cash candles, shared MTT scoring, background scan.
 import io
 import re
 import threading
@@ -65,7 +65,7 @@ def _load_master():
 
 
 class HaltScan(Exception):
-    """Account-wide or rate-limit failure. Do not repeat it for each stock."""
+    pass  # Stop scanning after account-wide or rate-limit errors.
 
 
 def fetch_candles(session, headers, sid, cutoff):
