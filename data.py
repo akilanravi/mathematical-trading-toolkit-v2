@@ -1,6 +1,6 @@
 """Dhan-first candles and quotes. Fallback is explicit and never called 'live'."""
 from __future__ import annotations
-import os, time, logging, re
+import os, time, logging, re, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -9,18 +9,39 @@ LOG=logging.getLogger(__name__);IST=ZoneInfo('Asia/Kolkata')
 INDEX={'NIFTY 50':'^NSEI','BANK NIFTY':'^NSEBANK','SENSEX':'^BSESN','FINNIFTY':'NIFTY_FIN_SERVICE.NS','MIDCAP NIFTY':'NIFTY_MID_SELECT.NS','INDIA VIX':'^INDIAVIX','GIFT NIFTY':'NQ=F'}
 # GIFT NIFTY deliberately has no proxy: NQ futures is not GIFT NIFTY.
 INDEX['GIFT NIFTY']=None
+# Shared across all DataProvider instances within this Python process.
+_DHAN_LOCK = threading.RLock()
+_DHAN_NEXT = 0.0
+_DHAN_BLOCKED = 0.0
+_DHAN_ERROR = ''
+_DHAN_MIN_INTERVAL = float(os.getenv('DHAN_MIN_INTERVAL_SECONDS', '1.0'))
+
 class DataProvider:
  def __init__(self,client_id='',token=''):
   self.client_id=str(client_id or os.getenv('DHAN_CLIENT_ID','')).strip();self.token=str(token or os.getenv('DHAN_ACCESS_TOKEN','')).strip();self.blocked_until=0;self.error='';self.master=None
  def request(self,path,payload=None,method='POST',timeout=5):
+  global _DHAN_NEXT, _DHAN_BLOCKED, _DHAN_ERROR
   if not self.token or not self.client_id:raise RuntimeError('Dhan credentials missing')
-  if time.monotonic()<self.blocked_until:raise RuntimeError(self.error or 'Dhan temporarily unavailable')
+  # One process-wide gate covers dashboard, diagnostics, and paper quote calls.
+  with _DHAN_LOCK:
+   now=time.monotonic()
+   if now < _DHAN_BLOCKED:
+    raise RuntimeError(f'Dhan cooling down: {_DHAN_ERROR} ({int(_DHAN_BLOCKED-now)}s left)')
+   if now < _DHAN_NEXT:
+    raise RuntimeError(f'Dhan request throttled; retry in {_DHAN_NEXT-now:.1f}s (Yahoo fallback permitted)')
+   _DHAN_NEXT=now+_DHAN_MIN_INTERVAL
   headers={'access-token':self.token,'client-id':self.client_id,'Content-Type':'application/json','Accept':'application/json'}
   try:
    r=requests.request(method,'https://api.dhan.co/v2/'+path.lstrip('/'),json=payload if method!='GET' else None,headers=headers,timeout=timeout)
    if r.status_code in (401,403,429):
-    self.error=f'Dhan HTTP {r.status_code}: {r.text[:200]}';self.blocked_until=time.monotonic()+(300 if r.status_code in (401,403) else 30)
-    raise RuntimeError(self.error)
+    code=r.status_code
+    try:retry=int(r.headers.get('Retry-After','0'))
+    except ValueError:retry=0
+    delay=max(retry,600 if code==429 else 300)
+    with _DHAN_LOCK:
+     _DHAN_ERROR=f'HTTP {code}: {r.text[:160]}'
+     _DHAN_BLOCKED=max(_DHAN_BLOCKED,time.monotonic()+delay)
+    raise RuntimeError(f'Dhan {_DHAN_ERROR}; cooling down {delay}s')
    r.raise_for_status();return r.json()
   except requests.RequestException as exc:raise RuntimeError(f'Dhan network/API error: {exc}') from exc
  def instrument_master(self):
