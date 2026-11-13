@@ -3,6 +3,7 @@ Run: streamlit run dashboard.py
 """
 import concurrent.futures
 import io
+import datetime as dt
 import pandas as pd
 import requests
 import streamlit as st
@@ -260,8 +261,8 @@ def build_stock_institutional_60d_ledger(symbol, df_daily):
 # ----------------------------------------------------------------------------
 # COMPOSITE CONFLUENCE RADAR (FII/DII + 10-PT INDICATORS + CPR + PULLBACK GUARD)
 # ----------------------------------------------------------------------------
-@st.cache_data(ttl=300, show_spinner=False)
-def run_top10_composite_radar(universe_type, stf, smode):
+@st.cache_data(ttl=60, show_spinner=False)
+def run_top10_composite_radar(universe_type, stf, smode, refresh_bucket=0):
     """
     Evaluates every stock across:
     1. 10-Point Technical Score (CPR, Camarilla, EMA 9/21, VWAP, RSI, Supertrend, Vol)
@@ -283,6 +284,30 @@ def run_top10_composite_radar(universe_type, stf, smode):
     # 1. Fetch entire universe data in 1 single fast batch call
     batch_period = "30d" if stf in ("5m", "15m") else "2y"
     batch_data = m.fetch_batch(target_list, stf, batch_period)
+    # Dhan intraday candles take precedence when the symbol is supported.
+    # Yahoo is explicitly marked as fallback; no quote is misrepresented as Dhan.
+    source_by_symbol = {sym: "Yahoo fallback" for sym in batch_data}
+    dhan_available = False
+    try:
+        import dhan_feed
+        cid, token = dhan_feed.get_dhan_credentials()
+        dhan_available = bool(cid and token)
+        supported = getattr(dhan_feed, "DHAN_SECURITY_MAP", {})
+        if dhan_available and stf == "5m":
+            candidates = [sym for sym in target_list if sym in supported]
+            def dhan_candles(sym):
+                try:
+                    return sym, dhan_feed.fetch_dhan_candles(sym, interval="5", days=10)
+                except Exception:
+                    return sym, pd.DataFrame()
+            with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
+                for sym, candles in pool.map(dhan_candles, candidates):
+                    if isinstance(candles, pd.DataFrame) and len(candles) >= 70:
+                        batch_data[sym] = candles
+                        source_by_symbol[sym] = "Dhan candles"
+    except (ImportError, AttributeError):
+        pass
+
     
     # 2. Get live benchmark tide
     tide = get_nifty_market_tide()
@@ -315,6 +340,17 @@ def run_top10_composite_radar(universe_type, stf, smode):
             bull_pts = sc["bull"]
             bear_pts = sc["bear"]
             max_pts = sc["max"]
+            # Eight existing mathematical components + Nifty benchmark = nine checks.
+            # None of the existing 10-point weighted mathematics is changed.
+            components = list(sc.get("comps", []))
+            direction_checks = {}
+            for direction, idx in (("Bull", 2), ("Bear", 3)):
+                checks = []
+                for comp in components[:8]:
+                    checks.append("✅" if comp[4] and comp[idx] > 0 else ("❌" if comp[4] else "➖"))
+                checks.append("✅" if tide["nifty_bias"] == ("BULLISH" if direction == "Bull" else "BEARISH") else ("➖" if tide["nifty_bias"] not in ("BULLISH", "BEARISH") else "❌"))
+                direction_checks[direction] = checks
+
 
             # --- METRIC 2: Peak Protection Filter (Distance from 21 EMA) ---
             # If price is stretched > 1.25x ATR away from 21 EMA, it's prone to immediate downfall!
@@ -355,6 +391,10 @@ def run_top10_composite_radar(universe_type, stf, smode):
 
             radar_scores.append({
                 "Symbol": sym,
+                "Data Source": source_by_symbol.get(sym, "Unknown"),
+                "Candle Time": str(df_sym.index[-1]),
+                **{f"Bull C{i+1}": v for i, v in enumerate(direction_checks["Bull"])},
+                **{f"Bear C{i+1}": v for i, v in enumerate(direction_checks["Bear"])},
                 "Price (₹)": round(p, 2),
                 "Bull Score": round(comp_bull, 1),
                 "Bear Score": round(comp_bear, 1),
@@ -562,80 +602,57 @@ def calculate_mtf_confluence(symbol, cfg):
 # ----------------------------------------------------------------------------
 # TAB 1: 5-MINUTE RADAR - TOP 10 BULL & TOP 10 BEAR STOCKS
 # ----------------------------------------------------------------------------
+# The radar refreshes without changing the other tabs or their calculations.
+# Fragment refresh reruns this section only (Streamlit >= 1.37).
+@st.fragment(run_every="30s")
+def render_live_radar():
+    st.subheader("🎯 Live F&O Radar | 5-Minute Professional Desk")
+    st.caption("5-minute completed candles • Live mode • Auto scan on opening • 30-second refresh • 10-point weighted scoring unchanged")
+    rad_universe = st.selectbox("Radar Universe", [
+        "Top 50 Most Liquid F&O (Ultra-Fast ⚡)",
+        "All 203 F&O Instruments & Indices"
+    ], index=0, key="radar_universe")
+    st.caption("Timeframe: 5m  |  Mode: live  |  Auto-refresh: ON")
+    force = st.button("🔄 Refresh Radar Now", type="primary", use_container_width=False, key="refresh_radar")
+    if force:
+        run_top10_composite_radar.clear()
+        try:
+            m.fetch.clear()
+        except (AttributeError, TypeError):
+            pass
+    # The refresh bucket is intentionally 60s to avoid excessive Dhan candle API calls.
+    # The fragment checks every 30s; manual refresh always forces a fresh scan.
+    bucket = int(pd.Timestamp.now(tz=m.IST).timestamp() // 60)
+    with st.spinner("Scanning available F&O candles and mathematical confirmations..."):
+        df_bull10, df_bear10, tide_status = run_top10_composite_radar(rad_universe, "5m", "live", bucket)
+    st.caption(f"Last scan: {pd.Timestamp.now(tz=m.IST):%d %b %Y %H:%M:%S} IST | Prices reflect last completed candle, not necessarily current LTP")
+    st.info(f"🌊 NIFTY 50: ₹{tide_status['nifty_px']:,.2f} | {tide_status['nifty_icon']} {tide_status['nifty_bias']} | {tide_status['nifty_msg']}")
+    if df_bull10.empty and df_bear10.empty:
+        st.warning("No valid radar results. Check Dhan credentials, API responses, market data availability and Yahoo fallback.")
+        return
+
+    # The original score engine contains eight named components totaling ten points.
+    # The ninth check is benchmark-tide alignment. An unavailable condition is grey.
+    labels = ["CPR trend", "Price/CPR", "Camarilla", "EMA 9/21", "Trend filter", "RSI", "Supertrend", "Volume", "NIFTY tide"]
+    with st.expander("ℹ️ Nine confirmation columns — legend", expanded=False):
+        st.write(" | ".join(f"C{i+1}: {name}" for i, name in enumerate(labels)))
+        st.caption("✅ passed | ❌ failed | ➖ unavailable/neutral. The first eight checks retain the existing weighted 10-point mathematics. A partial multi-point condition counts as passed if it earned points.")
+    left, right = st.columns(2)
+    for panel, data, direction in ((left, df_bull10, "Bull"), (right, df_bear10, "Bear")):
+        with panel:
+            st.markdown("### 🟢 Top 10 Bull (CE watchlist)" if direction == "Bull" else "### 🔴 Top 10 Bear (PE watchlist)")
+            st.caption("Ranked candidates, not guaranteed entries. Verify liquidity and the trade decision before buying options.")
+            cols = ["Symbol", "Price (₹)", f"{direction} Score", "10-Pt Score", "Data Source", "Candle Time"]
+            cols += [f"{direction} C{i}" for i in range(1, 10)]
+            cols += ["Peak Risk", "Structural SL", "Recommended Strike"]
+            shown = data[cols].copy()
+            shown = shown.rename(columns={f"{direction} C{i}": f"C{i}" for i in range(1, 10)})
+            st.dataframe(shown, use_container_width=True, height=460,
+                         column_config={f"C{i}": st.column_config.TextColumn(f"C{i}", width="small", help=labels[i-1]) for i in range(1, 10)})
+    st.warning("Data provenance: 'Dhan candles' means Dhan historical/intraday API returned candles; 'Yahoo fallback' is not a live Dhan feed. The radar does not verify FII/DII stock-wise trades or option premium liquidity.")
+
 with tab_radar:
-    st.subheader("🎯 Live 5-Minute Confluence Radar (Top 10 Bull & Bear)")
-    st.caption("Filters FII/DII Institutional Action + 10-Point Score + CPR Regime + Benchmark Tide + Anti-Peak Chasing Guard")
-
-    c_r1, c_r2, c_r3 = st.columns([2, 1, 1])
-    with c_r1:
-        rad_universe = st.selectbox("Radar Universe Scope", [
-            "Top 50 Most Liquid F&O (Ultra-Fast ⚡)",
-            "All 203 F&O Instruments & Indices"
-        ], index=0)
-    with c_r2:
-        rad_tf = TF[st.selectbox("Radar Candle Timeframe", list(TF), 1, key="radar_tf")]
-    with c_r3:
-        rad_mode = st.selectbox("Scan Mode", ["live", "next"], key="radar_mode")
-
-    col_btn_r, col_auto_r = st.columns([1, 2])
-    with col_btn_r:
-        refresh_radar = st.button("🔄 Refresh Radar Now", type="primary", use_container_width=True)
-    with col_auto_r:
-        auto_ref = st.checkbox("⏱️ Auto-Refresh Data Every 5 Minutes (Keeps in sync with 5M/15M candles)", value=False)
-        if auto_ref:
-            # Refresh every 300 seconds (5 minutes)
-            st.caption("⏳ Auto-refresh is armed (Cache TTL: 300s).")
-
-    with st.spinner("⚡ Running full multi-factor confluence analysis across indicators, FII/DII flows & anti-peak filters..."):
-        df_bull10, df_bear10, tide_status = run_top10_composite_radar(rad_universe, rad_tf, rad_mode)
-
-    # Market Tide Banner
-    st.markdown(f"""
-    <div style="background: rgba(41, 121, 255, 0.08); border-left: 4px solid #2979ff; padding: 10px 14px; border-radius: 6px; margin: 10px 0; font-size: 13px;">
-        <strong>🌊 Macro Benchmark Tide:</strong> Nifty 50 at <code>₹{tide_status['nifty_px']:,.2f}</code> | Status: <strong>{tide_status['nifty_icon']} {tide_status['nifty_bias']}</strong> ({tide_status['nifty_msg']})
-    </div>
-    """, unsafe_allow_html=True)
-
-    if not df_bull10.empty:
-        col_bull_tab, col_bear_tab = st.columns(2)
-        
-        with col_bull_tab:
-            st.write("### 🟢 Top 10 Bull Stocks (Institutional Buying + Healthy Pullback)")
-            st.caption("Ranked by Composite Bullish Score. High Peak Risk stocks are penalized.")
-
-            def color_bull_table(df):
-                return df.style.format({
-                    "Bull Score": "{:.1f}",
-                    "Price (₹)": "₹{:.2f}",
-                    "Safe Entry (Retest)": "₹{:.2f}",
-                    "Structural SL": "₹{:.2f}"
-                }).map(
-                    lambda v: "background-color: rgba(0, 230, 118, 0.2); font-weight: bold;" if "Low" in str(v) else ("background-color: rgba(255, 82, 82, 0.2);" if "High" in str(v) else ""),
-                    subset=["Peak Risk"]
-                )
-
-            st.dataframe(color_bull_table(df_bull10[["Symbol", "Price (₹)", "Bull Score", "10-Pt Score", "Inst. Activity", "Safe Entry (Retest)", "Peak Risk", "Structural SL", "Recommended Strike"]]), use_container_width=True)
-
-        with col_bear_tab:
-            st.write("### 🔴 Top 10 Bear Stocks (Institutional Selling + Breakdown)")
-            st.caption("Ranked by Composite Bearish Score. Ideal for PE buying.")
-
-            def color_bear_table(df):
-                return df.style.format({
-                    "Bear Score": "{:.1f}",
-                    "Price (₹)": "₹{:.2f}",
-                    "Safe Entry (Retest)": "₹{:.2f}",
-                    "Structural SL": "₹{:.2f}"
-                }).map(
-                    lambda v: "background-color: rgba(0, 230, 118, 0.2); font-weight: bold;" if "Low" in str(v) else ("background-color: rgba(255, 82, 82, 0.2);" if "High" in str(v) else ""),
-                    subset=["Peak Risk"]
-                )
-
-            st.dataframe(color_bear_table(df_bear10[["Symbol", "Price (₹)", "Bear Score", "10-Pt Score", "Inst. Activity", "Safe Entry (Retest)", "Peak Risk", "Structural SL", "Recommended Strike"]]), use_container_width=True)
-
-        st.info("💡 **Execution Rule to Never Buy the Peak:** Do NOT enter at the current Market Price if 'Peak Risk' is High. Always place a Limit Order at the **'Safe Entry (Retest)'** level (50% setup bar pullback). If it never pulls back, skip the trade!")
-    else:
-        st.warning("Could not build radar. Check network connection or try switching to 'Top 50 Most Liquid F&O'.")
+    render_live_radar()
 
 # TAB 1: ALL F&O SCREENER
 # ----------------------------------------------------------------------------
