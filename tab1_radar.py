@@ -127,34 +127,100 @@ def _master_maps(frame, today):
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def discover():
-    master = dhan_feed._master()
+    import io
+    import requests
+
+    url = "https://images.dhan.co/api-data/api-scrip-master-detailed.csv"
+    fields = {
+        "EXCH_ID", "SEGMENT", "INSTRUMENT", "SECURITY_ID",
+        "SYMBOL_NAME", "SERIES", "UNDERLYING_SECURITY_ID",
+        "UNDERLYING_SYMBOL", "SM_EXPIRY_DATE",
+    }
+
+    response = requests.get(url, timeout=(10, 60))
+    response.raise_for_status()
+    master = pd.read_csv(
+        io.BytesIO(response.content),
+        encoding="utf-8-sig",
+        dtype=str,
+        usecols=lambda name: name in fields,
+        low_memory=False,
+    )
+
+    missing = fields - set(master.columns)
+    if missing:
+        raise ValueError(f"Dhan detailed master missing fields: {sorted(missing)}")
+
+    exchange = _text(master["EXCH_ID"])
+    segment = _text(master["SEGMENT"])
+    kind = _text(master["INSTRUMENT"])
+    series = _text(master["SERIES"])
+
+    cash_rows = master.loc[
+        exchange.eq("NSE")
+        & segment.eq("E")
+        & kind.isin(["EQUITY", "EQ"])
+        & series.isin(["", "EQ"])
+    ]
+    cash_ids = {
+        sid
+        for name, raw_id in cash_rows[["SYMBOL_NAME", "SECURITY_ID"]].itertuples(
+            index=False, name=None
+        )
+        if "NSETEST" not in _symbol(name)
+        if (sid := _security_id(raw_id)) is not None
+    }
+
+    futures = master.loc[
+        exchange.eq("NSE") & segment.eq("D") & kind.eq("FUTSTK")
+    ]
+    expiry = pd.to_datetime(
+        futures["SM_EXPIRY_DATE"], format="mixed", errors="coerce"
+    )
     today = pd.Timestamp.now(tz=IST).date()
-    cash, dhan_names = _master_maps(master, today)
+    active = futures.loc[expiry.notna() & (expiry.dt.date >= today)]
 
-    try:
-        nse_names = {_symbol(name) for name in (dhan_feed._nse_fo_symbols() or ())}
-        nse_names -= INDEX_NAMES
-    except Exception:
-        nse_names = set()
+    candidates = {}
+    test_symbols = set()
+    for raw_name, raw_id in active[
+        ["UNDERLYING_SYMBOL", "UNDERLYING_SECURITY_ID"]
+    ].itertuples(index=False, name=None):
+        name = _symbol(raw_name)
+        if "NSETEST" in name:
+            test_symbols.add(name)
+            continue
+        if pd.isna(raw_name) or name in INDEX_NAMES or not re.fullmatch(
+            r"[A-Z0-9][A-Z0-9&_.-]{1,29}", name
+        ):
+            continue
 
-    nse_matches = nse_names & cash.keys()
-    if nse_matches and len(nse_matches) >= len(dhan_names):
-        names = nse_matches
-        source = "NSE market-lot list + Dhan cash IDs"
-        membership_count = len(nse_names)
-    elif dhan_names:
-        names = dhan_names
-        source = "Dhan stock-futures master + Dhan cash IDs"
-        membership_count = None
-    else:
+        ids = candidates.setdefault(name, set())
+        sid = _security_id(raw_id)
+        if sid is not None:
+            ids.add(sid)
+
+    mapping = {}
+    for name, ids in sorted(candidates.items()):
+        if len(ids) == 1:
+            sid = next(iter(ids))
+            if sid in cash_ids:
+                mapping[name] = sid
+
+    unmatched = len(candidates) - len(mapping)
+    if not mapping:
         raise RuntimeError(
-            "No F&O stocks could be mapped to NSE cash IDs. "
-            f"NSE symbols received: {len(nse_names)}. "
-            f"Unambiguous NSE cash IDs in Dhan master: {len(cash)}."
+            f"No stock futures mapped to NSE cash IDs. "
+            f"Active futures rows: {len(active)}. "
+            f"Stock symbols found: {len(candidates)}. "
+            f"NSETEST symbols excluded: {len(test_symbols)}."
         )
 
-    return {name: cash[name] for name in sorted(names)}, source, membership_count
-
+    source = (
+        f"Dhan detailed master, joined by underlying ID · "
+        f"Stock symbols found: {len(candidates)} · Unmatched: {unmatched} · "
+        f"NSETEST excluded: {len(test_symbols)}"
+    )
+    return mapping, source, None
 
 def normalize_candles(payload):
     if not isinstance(payload, dict):
